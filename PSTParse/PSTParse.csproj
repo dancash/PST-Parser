@@ -1,0 +1,112 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{D8896CE5-BEFD-4F1F-9B7C-24A5ABDE5683}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>PSTParse</RootNamespace>
+    <AssemblyName>PSTParse</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="LTP\BTH.cs" />
+    <Compile Include="LTP\BTHDataEntry.cs" />
+    <Compile Include="LTP\BTHDataNode.cs" />
+    <Compile Include="LTP\BTHDataRecord.cs" />
+    <Compile Include="LTP\BTHHEADER.cs" />
+    <Compile Include="LTP\BTHIndexAllocationRecords.cs" />
+    <Compile Include="LTP\BTHIndexEntry.cs" />
+    <Compile Include="LTP\BTHIndexNode.cs" />
+    <Compile Include="LTP\HeapNodeBO.cs" />
+    <Compile Include="LTP\HID.cs" />
+    <Compile Include="LTP\HN.cs" />
+    <Compile Include="LTP\HNBITMAPHDR.cs" />
+    <Compile Include="LTP\HNBlock.cs" />
+    <Compile Include="LTP\HNHDR.cs" />
+    <Compile Include="LTP\HNID.cs" />
+    <Compile Include="LTP\HNPAGEHDR.cs" />
+    <Compile Include="LTP\HNPAGEMAP.cs" />
+    <Compile Include="LTP\MVPropVarBase.cs" />
+    <Compile Include="LTP\PCBTHRecord.cs" />
+    <Compile Include="Message Layer\MailStore.cs" />
+    <Compile Include="LTP\PropertyContext.cs" />
+    <Compile Include="Message Layer\PropType.cs" />
+    <Compile Include="NDB\BBTENTRY.cs" />
+    <Compile Include="NDB\BlockBO.cs" />
+    <Compile Include="NDB\BlockDataDTO.cs" />
+    <Compile Include="NDB\BlockFactory.cs" />
+    <Compile Include="NDB\BlockTrailer.cs" />
+    <Compile Include="NDB\BREF.cs" />
+    <Compile Include="NDB\BTENTRY.cs" />
+    <Compile Include="NDB\BTPage.cs" />
+    <Compile Include="NDB\BTPAGEENTRY.cs" />
+    <Compile Include="NDB\DatatEncoder.cs" />
+    <Compile Include="NDB\IBLOCK.cs" />
+    <Compile Include="NDB\NBTENTRY.cs" />
+    <Compile Include="NDB\NodeBO.cs" />
+    <Compile Include="NDB\NodeBTree.cs" />
+    <Compile Include="NDB\NodeDataDTO.cs" />
+    <Compile Include="NDB\PageTrailer.cs" />
+    <Compile Include="NDB\PSTBTree.cs" />
+    <Compile Include="NDB\PSTBTreeNode.cs" />
+    <Compile Include="NDB\SIBLOCK.cs" />
+    <Compile Include="NDB\SIENTRY.cs" />
+    <Compile Include="NDB\SLBLOCK.cs" />
+    <Compile Include="NDB\SLENTRY.cs" />
+    <Compile Include="NDB\SpecialNIDs.cs" />
+    <Compile Include="NDB\SubNodeDataDTO.cs" />
+    <Compile Include="NDB\XBLOCK.cs" />
+    <Compile Include="NDB\XXBLOCK.cs" />
+    <Compile Include="PasswordReset.cs" />
+    <Compile Include="PSTFile.cs" />
+    <Compile Include="PSTHeader.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="PSTParser.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MiscParseUtilities\MiscParseUtilities.csproj">
+      <Project>{52D784A1-1B5A-47B2-87FA-8D5E6231A578}</Project>
+      <Name>MiscParseUtilities</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
