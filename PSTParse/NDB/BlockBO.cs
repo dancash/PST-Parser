@@ -102,9 +102,20 @@ namespace PSTParse.NDB
             {
                 using(var viewer = PSTFile.PSTMMF.CreateViewAccessor((long)entry.BREF.IB,blockSize))
                 {
-                    var blockBytes = new byte[blockSize];
-                    viewer.ReadArray(0, blockBytes, 0, blockSize);
-                    var dataBlockDTO = new BlockDataDTO {Data = blockBytes, PstOffset = entry.BREF.IB};
+                    var blockBytes = new byte[dataSize];
+                    viewer.ReadArray(0, blockBytes, 0, dataSize);
+
+                    var trailerBytes = new byte[16];
+                    viewer.ReadArray(blockSize-16, trailerBytes, 0, 16);
+                    var trailer = new BlockTrailer(trailerBytes, 0);
+                    
+                    var dataBlockDTO = new BlockDataDTO
+                                           {
+                                               Data = blockBytes,
+                                               PstOffset = entry.BREF.IB,
+                                               CRCOffset = (uint)((long)entry.BREF.IB + (blockSize - 12)),
+                                               BBTEntry = entry
+                                           };
                     
                     if (blockBytes[1] == 0x01) //XBLOCK
                     {
@@ -123,16 +134,10 @@ namespace PSTParse.NDB
                 {
                     var dataBytes = new byte[dataSize];
                     viewer.ReadArray(0, dataBytes, 0, dataSize);
-                    var padSize = (dataSize + 16)%64;
-                    if (padSize != 0)
-                        padSize = 64 - padSize;
+                    
                     var trailerBytes = new byte[16];
-                    viewer.ReadArray(dataSize + padSize, trailerBytes, 0, 16);
+                    viewer.ReadArray(blockSize-16, trailerBytes, 0, 16);
                     var trailer = new BlockTrailer(trailerBytes, 0);
-                    //var storedHash = trailer.CRC;
-                    //var crc = new CRC32();
-                    //DatatEncoder.CryptPermute(ref dataBytes, dataSize, false);
-                    //var hash = crc.ComputeCRC(0, dataBytes, dataSize);
                     dataBlocks = new List<BlockDataDTO>
                                      {
                                          new BlockDataDTO
@@ -140,7 +145,8 @@ namespace PSTParse.NDB
                                                  Data = dataBytes,
                                                  PstOffset = entry.BREF.IB,
                                                  CRC32 = trailer.CRC,
-                                                 CRCOffset = (uint) (dataSize + padSize + 4)
+                                                 CRCOffset = (uint) (blockSize -12),
+                                                 BBTEntry = entry
                                              }
                                      };
                 }
@@ -148,9 +154,8 @@ namespace PSTParse.NDB
 
             for (int i = 0; i < dataBlocks.Count; i++)
             {
-                var temp = dataBlocks[i].Data;
-                
-                DatatEncoder.CryptPermute(ref temp, temp.Length, false);
+                var temp = dataBlocks[i].Data;   
+                DatatEncoder.CryptPermute(temp, temp.Length, false);
             }
             return dataBlocks;
         }

@@ -107,7 +107,7 @@ namespace PSTParse.NDB
 237, 154, 100, 63, 193, 108, 249, 236
 };
 
-        public static void CryptPermute(ref byte[] pv, int cb, bool fEncrypt)
+        public static void CryptPermute(byte[] pv, int cb, bool fEncrypt)
         {
             if (PSTFile.CurPST.Header.EncodingAlgotihm == PSTHeader.BlockEncoding.NONE)
                 return;

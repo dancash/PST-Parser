@@ -19,7 +19,7 @@ namespace PSTParse.LTP
         public HID UserRoot;
         public ulong FillLevel_raw;
 
-        public HNHDR(ref byte[] bytes)
+        public HNHDR(byte[] bytes)
         {
             this.ClientSigType = (ClientSig)bytes[3];
             this.bSig = bytes[2];

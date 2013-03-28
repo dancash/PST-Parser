@@ -17,7 +17,7 @@ namespace PSTParse.LTP
         public uint NumLevels;
         public HID BTreeRoot;
 
-        public BTHHEADER(BlockDataDTO block)
+        public BTHHEADER(HNDataDTO block)
         {
             var bytes = block.Data;
             this.BType = bytes[0];

@@ -24,7 +24,7 @@ namespace PSTParse.LTP
             this.PageMap = new HNPAGEMAP(this._bytes.Data, this.PageMapOffset);
             if (blockIndex == 0)
             {
-                this.Header = new HNHDR(ref this._bytes.Data);
+                this.Header = new HNHDR(this._bytes.Data);
             } else if (blockIndex % 128 == 8)
             {
                 this.BitMapPageHeader = new HNBITMAPHDR(ref this._bytes.Data);
@@ -34,14 +34,15 @@ namespace PSTParse.LTP
             }
         }
 
-        public BlockDataDTO GetAllocation(HID hid)
+        public HNDataDTO GetAllocation(HID hid)
         {
             var begOffset = this.PageMap.AllocationTable[(int) hid.hidIndex - 1];
             var endOffset = this.PageMap.AllocationTable[(int) hid.hidIndex];
-            return new BlockDataDTO
+            return new HNDataDTO
                        {
                            Data = this._bytes.Data.RangeSubset(begOffset, endOffset - begOffset),
-                           PstOffset = _bytes.PstOffset + begOffset
+                           BlockOffset = begOffset,
+                           Parent = _bytes
                        };
         }
 

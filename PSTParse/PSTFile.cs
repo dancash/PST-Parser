@@ -4,6 +4,7 @@ using System.IO;
 using System.IO.MemoryMappedFiles;
 using System.Linq;
 using System.Text;
+using PSTParse.LTP;
 using PSTParse.Message_Layer;
 using PSTParse.NDB;
 
@@ -28,6 +29,9 @@ namespace PSTParse
             var temp = BlockBO.GetNodeData(SpecialNIDs.NID_ROOT_FOLDER);*/
 
             var pc = new PropertyContext(SpecialNIDs.NID_MESSAGE_STORE);
+            var rootEntryID = new EntryID(pc.BTH.GetExchangeProperties()[0x35e0].Data);
+
+            var temp = new TableContext(rootEntryID.NID);
             //PasswordReset.ResetPassword();
 
         }

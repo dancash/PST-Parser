@@ -9,7 +9,7 @@ namespace PSTParse.LTP
             return new HN(BlockBO.GetNodeData(NID));
         }
 
-        public static BlockDataDTO GetHNHIDBytes(HN heapNode, HID hid)
+        public static HNDataDTO GetHNHIDBytes(HN heapNode, HID hid)
         {
             var hnblock = heapNode.HeapNodes[(int)hid.hidBlockIndex];
             return hnblock.GetAllocation(hid);

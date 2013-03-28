@@ -9,7 +9,8 @@ namespace PSTParse.LTP
     public class HN
     {
         public NBTENTRY HNNode;
-        public List<HNBlock> HeapNodes; 
+        public List<HNBlock> HeapNodes;
+        public Dictionary<ulong, NodeDataDTO> HeapSubNode;
 
         public HN(NodeDataDTO nodeData)
         {
@@ -20,6 +21,13 @@ namespace PSTParse.LTP
                 var curBlock = new HNBlock(i, nodeData.NodeData[i]);
                 this.HeapNodes.Add(curBlock);
             }
+
+            this.HeapSubNode = nodeData.SubNodeData;
+        }
+
+        public HNDataDTO GetHIDBytes(HID hid)
+        {
+            return this.HeapNodes[(int)hid.hidBlockIndex].GetAllocation(hid);
         }
     }
 }

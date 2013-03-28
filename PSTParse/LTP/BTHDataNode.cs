@@ -11,10 +11,13 @@ namespace PSTParse.LTP
     public class BTHDataNode
     {
         public List<BTHDataEntry> DataEntries;
-        private BlockDataDTO _data;
+        private HNDataDTO _data;
+        public BTH Tree;
 
         public BTHDataNode(HID hid, BTH tree)
         {
+            this.Tree = tree;
+
             var bytes = tree.GetHIDBytes(hid);
             this._data = bytes;
             this.DataEntries = new List<BTHDataEntry>();
@@ -22,6 +25,7 @@ namespace PSTParse.LTP
                 this.DataEntries.Add(new BTHDataEntry(bytes, i, tree));
         }
 
+        //this is only here for testing purposes, this needs to be moved
         public bool BlankPassword()
         {
             var toMatch = new byte[] {0xFF, 0x67};
@@ -29,29 +33,47 @@ namespace PSTParse.LTP
                 if (entry.Key[0] == toMatch[0] && entry.Key[1] == toMatch[1])
                 {
                     PSTFile.CurPST.CloseMMF();
-
-                    this._data.Data[entry.BlockOffset] = 0x00;
-                    this._data.Data[entry.BlockOffset + 1] = 0x00;
-                    this._data.Data[entry.BlockOffset + 2] = 0x00;
-                    this._data.Data[entry.BlockOffset + 3] = 0x00;
-
-                    DatatEncoder.CryptPermute(ref this._data.Data, this._data.Data.Length, true);
+                    //DatatEncoder.CryptPermute(ref this._data.Parent.Data, this._data.Parent.Data.Length, true);
 
                     using (var stream = new FileStream(PSTFile.CurPST.Path, FileMode.Open))
                     {
-                        stream.Seek((long)entry.DataOffset, SeekOrigin.Begin);
+                        var dataBlockOffset = entry.DataOffset;
+
+                        //this._data.Parent.Data[dataBlockOffset] = 0x00;
+                        //this._data.Parent.Data[dataBlockOffset + 1] = 0x00;
+                        this._data.Parent.Data[dataBlockOffset + 2] = 0x00;
+                        this._data.Parent.Data[dataBlockOffset + 3] = 0x00;
+                        this._data.Parent.Data[dataBlockOffset + 4] = 0x00;
+                        this._data.Parent.Data[dataBlockOffset + 5] = 0x00;
+
+                        DatatEncoder.CryptPermute(this._data.Parent.Data, this._data.Parent.Data.Length, true);
+
+                        var testCRC = (new CRC32()).ComputeCRC(0, this._data.Parent.Data, (uint)this._data.Parent.Data.Length);
+                        stream.Seek((long)(this._data.Parent.PstOffset + entry.DataOffset), SeekOrigin.Begin);
+
                         stream.Write(
                             new []
                                 {
-                                    this._data.Data[entry.BlockOffset],
-                                    this._data.Data[entry.BlockOffset + 1],
-                                    this._data.Data[entry.BlockOffset + 2],
-                                    this._data.Data[entry.BlockOffset + 3],
+                                    //this._data.Parent.Data[dataBlockOffset],
+                                    //this._data.Parent.Data[dataBlockOffset + 1],
+                                    this._data.Parent.Data[dataBlockOffset + 2],
+                                    this._data.Parent.Data[dataBlockOffset + 3],
+                                    this._data.Parent.Data[dataBlockOffset + 4],
+                                    this._data.Parent.Data[dataBlockOffset + 5]
                                 }, 0, 4);
+
+                        var newCRC = (new CRC32()).ComputeCRC(0, this._data.Parent.Data, (uint) this._data.Parent.Data.Length);
+
+                        DatatEncoder.CryptPermute(this._data.Parent.Data, this._data.Parent.Data.Length, false);
+                        var crcoffset = (int) (this._data.Parent.PstOffset + this._data.Parent.CRCOffset);
+                        stream.Seek(crcoffset, SeekOrigin.Begin);
+                        var temp = BitConverter.GetBytes(newCRC);
+                        stream.Write(new []
+                                         {
+                                             temp[0],temp[1],temp[2],temp[3]
+                                         }, 0, 4);
+                        
                     }
-                    DatatEncoder.CryptPermute(ref this._data.Data, this._data.Data.Length, false);
-                    var crc = new CRC32();
-                    var newCRC = crc.ComputeCRC(0, this._data.Data, (uint) this._data.Data.Length);
                     
                     PSTFile.CurPST.OpenMMF();
                     return true;

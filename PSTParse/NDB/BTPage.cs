@@ -36,11 +36,12 @@ namespace PSTParse.NDB
             this.Entries = new List<BTPAGEENTRY>();
             for (var i = 0; i < this._numEntries; i++)
             {
+                var offset = i*this._cbEnt;
                 var curEntryBytes = pageData.Skip(i*this._cbEnt).Take(this._cbEnt).ToArray();
                 if (this._cLevel == 0)
                 {
                     if (this._trailer.PageType == PageType.NBT)
-                        this.Entries.Add(new NBTENTRY(curEntryBytes));
+                        this.Entries.Add(new NBTENTRY(pageData, offset));
                     else
                     {
                         var curEntry = new BBTENTRY(curEntryBytes);

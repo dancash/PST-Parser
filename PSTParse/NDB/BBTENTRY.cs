@@ -7,6 +7,7 @@ namespace PSTParse.NDB
         public BREF BREF;
         public bool Internal;
         public UInt16 BlockByteCount;
+        public UInt16 RefCount;
 
         public BBTENTRY(byte[] bytes)
         {
@@ -15,6 +16,7 @@ namespace PSTParse.NDB
                             {BID_raw = BitConverter.ToUInt64(bytes, 0), ByteIndex = BitConverter.ToUInt64(bytes, 8)};*/
             this.Internal = this.BREF.IsInternal;
             this.BlockByteCount = BitConverter.ToUInt16(bytes, 16);
+            this.RefCount = BitConverter.ToUInt16(bytes, 18);
         }
 
         public ulong Key

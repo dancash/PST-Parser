@@ -13,16 +13,17 @@ namespace PSTParse.LTP
         public byte[] Data;
 
         public ulong DataOffset;
-        public ulong BlockOffset;
+        public ulong DataBlockOffset;
+        public BTH ParentTree;
 
-        public BTHDataEntry(BlockDataDTO data, int offset, BTH tree)
+        public BTHDataEntry(HNDataDTO data, int offset, BTH tree)
         {
             this.Key = data.Data.RangeSubset(offset, (int) tree.Header.KeySize);
             //this.Key = bytes.Skip(offset).Take((int)tree.Header.KeySize).ToArray();
             var temp = offset + (int) tree.Header.KeySize;
             this.Data = data.Data.RangeSubset(temp, (int)tree.Header.DataSize);
-            this.DataOffset = data.PstOffset + (ulong) offset + tree.Header.KeySize;
-            this.BlockOffset = (ulong) offset + tree.Header.KeySize;
+            this.DataOffset = (ulong) offset + tree.Header.KeySize;
+            this.ParentTree = tree;
         }
     }
 }

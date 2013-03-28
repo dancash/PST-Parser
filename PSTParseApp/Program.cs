@@ -10,6 +10,7 @@ namespace PSTParseApp
     {
         static void Main(string[] args)
         {
+
             //var pstPath = @"C:\test\FranCoen_Export_0001.pst";
             var pstPath = @"C:\test\dtmtcm@gmail.com.pst";
             var file = new PSTFile(pstPath);
