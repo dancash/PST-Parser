@@ -10,16 +10,12 @@ namespace PSTParse.NDB
         public ulong NID_TYPE { get; set; }
         public uint NID_Parent { get; set; }
 
-        public NBTENTRY(byte[] curEntryBytes, int offset)
+        public NBTENTRY(byte[] curEntryBytes)
         {
-            this.NID = BitConverter.ToUInt64(curEntryBytes, offset);
-            this.NID_TYPE = this.NID & 31;
-            this.BID_Data = BitConverter.ToUInt64(curEntryBytes, offset + 8);
-            this.BID_SUB = BitConverter.ToUInt64(curEntryBytes, offset + 16);
-
-            int i = 0;
-            if (this.BID_SUB != 0)
-                i++;
+            this.NID = BitConverter.ToUInt64(curEntryBytes, 0);
+            this.NID_TYPE = this.NID & 0x1f;
+            this.BID_Data = BitConverter.ToUInt64(curEntryBytes,8);
+            this.BID_SUB = BitConverter.ToUInt64(curEntryBytes,16);
 
             this.NID_Parent = BitConverter.ToUInt32(curEntryBytes, 24);
         }

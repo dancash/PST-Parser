@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using MiscParseUtilities;
+using PSTParse.NDB;
 
 namespace PSTParse.LTP
 {
@@ -86,15 +87,26 @@ namespace PSTParse.LTP
                 if (curID == 0)
                 {
                     
-                } else if ((curID & 31) == 0) //must be HID
+                } else if ((curID & 0x1F) == 0) //must be HID
                 {
                     this.Data = heap.GetHIDBytes(new HID(entry.Data,2)).Data;
                 } else //let's assume NID
                 {
                     var totalSize = 0;
-                    var dataBlocks = entry.ParentTree.HeapNode.HeapSubNode[curID].NodeData;
+                    var dataBlocks = new List<BlockDataDTO>();
+                    int ii = 0;
+                    if (entry.ParentTree.HeapNode.HeapSubNode.ContainsKey(curID))
+                        dataBlocks = entry.ParentTree.HeapNode.HeapSubNode[curID].NodeData;
+                    else
+                    {
+                        var tempSubNodeXREF = new Dictionary<ulong, NodeDataDTO>();
+                        foreach (var heapSubNode in entry.ParentTree.HeapNode.HeapSubNode)
+                            tempSubNodeXREF.Add(heapSubNode.Key & 0xFFFFFFFF, heapSubNode.Value);
+                        dataBlocks = tempSubNodeXREF[curID].NodeData;
+                        //dataBlocks = entry.ParentTree.HeapNode.HeapSubNode[curID].NodeData;
+                    }
                     foreach(var dataBlock in dataBlocks)
-                        totalSize = dataBlock.Data.Length;
+                        totalSize += dataBlock.Data.Length;
                     var allData = new byte[totalSize];
                     var curPos = 0;
                     foreach(var datablock in dataBlocks)

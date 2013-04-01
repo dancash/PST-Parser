@@ -20,7 +20,8 @@ namespace PSTParse.NDB
 
         private static Dictionary<ulong, NodeDataDTO> GetSubNodeData(BBTENTRY entry)
         {
-            var dataBlock = GetBBTEntryData(entry)[0];
+            var allData = BlockBO.GetBBTEntryData(entry);
+            var dataBlock = allData[0];
             if (entry.Internal)
             {
                 var type = dataBlock.Data[0];
@@ -44,7 +45,8 @@ namespace PSTParse.NDB
 
             foreach(var entry in siblock.Entries)
             {
-                var slblock = new SLBLOCK(BlockBO.GetBBTEntryData(PSTFile.CurPST.GetBlockBBTEntry(entry.SLBlockBID))[0]);
+                var curSLBlockBBT = PSTFile.CurPST.GetBlockBBTEntry(entry.SLBlockBID);
+                var slblock = new SLBLOCK(BlockBO.GetBBTEntryData(curSLBlockBBT)[0]);
                 var data = BlockBO.GetSLBlockData(slblock);
                 foreach(var item in data)
                     ret.Add(item.Key, item.Value);
@@ -52,17 +54,23 @@ namespace PSTParse.NDB
             
             return ret;
         }
-
+        //gets all the data for an SL block.  an SL block points directly to all the immediate subnodes
         private static Dictionary<ulong, NodeDataDTO> GetSLBlockData(SLBLOCK slblock)
         {
             var ret = new Dictionary<ulong, NodeDataDTO>();
             foreach(var entry in slblock.Entries)
             {
+                //this data should represent the main data part of the subnode
                 var data = BlockBO.GetBBTEntryData(PSTFile.CurPST.GetBlockBBTEntry(entry.SubNodeBID));
                 var cur = new NodeDataDTO {NodeData = data};
-                if (entry.SubSubNodeBID != 0)
-                    cur.SubNodeData = GetSubNodeData(PSTFile.CurPST.GetBlockBBTEntry(entry.SubNodeBID));
                 ret.Add(entry.SubNodeNID, cur);
+
+                //see if there are sub nodes of this current sub node
+                if (entry.SubSubNodeBID != 0)
+                    //if there are subnodes, treat them like any other subnode
+                    cur.SubNodeData = GetSubNodeData(PSTFile.CurPST.GetBlockBBTEntry(entry.SubSubNodeBID));
+
+                
             }
             return ret;
         }
@@ -90,6 +98,8 @@ namespace PSTParse.NDB
             return new NodeDataDTO {NodeData = mainData, SubNodeData = null};
         }
 
+        //for a given bbt entry, retrieve the raw bytes associated with the BID
+        //this includes retrieving data trees via xblocks
         public static List<BlockDataDTO> GetBBTEntryData(BBTENTRY entry)
         {
             var dataSize = entry.BlockByteCount;
@@ -98,6 +108,17 @@ namespace PSTParse.NDB
                 blockSize += 64 - (blockSize%64);
             List<BlockDataDTO> dataBlocks;
 
+            /*if (isSubNode)
+            {
+                using (var viewer = PSTFile.PSTMMF.CreateViewAccessor((long)entry.BREF.IB, blockSize))
+                {
+                    var blockBytes = new byte[dataSize];
+                    viewer.ReadArray(0, blockBytes, 0, dataSize);
+                    dataBlocks = new List<BlockDataDTO>
+                                     {new BlockDataDTO {Data = blockBytes, PstOffset = entry.BREF.IB, BBTEntry = entry}};
+                    return dataBlocks;
+                }
+            } else */
             if (entry.Internal)
             {
                 using(var viewer = PSTFile.PSTMMF.CreateViewAccessor((long)entry.BREF.IB,blockSize))
@@ -116,16 +137,27 @@ namespace PSTParse.NDB
                                                CRCOffset = (uint)((long)entry.BREF.IB + (blockSize - 12)),
                                                BBTEntry = entry
                                            };
-                    
-                    if (blockBytes[1] == 0x01) //XBLOCK
+                    var type = blockBytes[0];
+                    var level = blockBytes[1];
+
+                    if (type == 2) //si or sl entry
                     {
-                        var xblock = new XBLOCK(dataBlockDTO);
-                        dataBlocks = BlockBO.GetXBlockData(xblock);
+                        return new List<BlockDataDTO> {dataBlockDTO};
+                    } else if (type == 1)
+                    {
+                        if (blockBytes[1] == 0x01) //XBLOCK
+                        {
+                            var xblock = new XBLOCK(dataBlockDTO);
+                            return BlockBO.GetXBlockData(xblock);
                         
-                    } else //XXBLOCK
+                        } else //XXBLOCK
+                        {
+                            var xxblock = new XXBLOCK(dataBlockDTO);
+                            return BlockBO.GetXXBlockData(xxblock);
+                        }
+                    } else
                     {
-                        var xxblock = new XXBLOCK(dataBlockDTO);
-                        dataBlocks = BlockBO.GetXXBlockData(xxblock);
+                        throw new NotImplementedException();
                     }
                 }
             } else
@@ -177,9 +209,10 @@ namespace PSTParse.NDB
             foreach(var bid in xxblock.XBlockBIDs)
             {
                 var bbtEntry = PSTFile.CurPST.GetBlockBBTEntry(bid);
-                var curXblock = new XBLOCK(BlockBO.GetBBTEntryData(bbtEntry)[0]);
-                var curXblockData = BlockBO.GetXBlockData(curXblock);
-                ret.AddRange(curXblockData);
+                var curXblockData = BlockBO.GetBBTEntryData(bbtEntry);
+                //var curXblockData = BlockBO.GetXBlockData(curXblock);
+                foreach(var block in curXblockData)
+                    ret.Add(block);
             }
             return ret;
         }

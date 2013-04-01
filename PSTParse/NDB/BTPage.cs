@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using MiscParseUtilities;
 
 namespace PSTParse.NDB
 {
@@ -27,7 +28,7 @@ namespace PSTParse.NDB
         {
             this._ref = _ref;
             this.InternalChildren = new List<BTPage>();
-            this._trailer = new PageTrailer(pageData.Skip(496).Take(16).ToArray());
+            this._trailer = new PageTrailer(pageData.RangeSubset(496,16));
             this._numEntries = pageData[488];
             this._maxEntries = pageData[489];
             this._cbEnt = pageData[490];
@@ -36,12 +37,11 @@ namespace PSTParse.NDB
             this.Entries = new List<BTPAGEENTRY>();
             for (var i = 0; i < this._numEntries; i++)
             {
-                var offset = i*this._cbEnt;
-                var curEntryBytes = pageData.Skip(i*this._cbEnt).Take(this._cbEnt).ToArray();
+                var curEntryBytes = pageData.RangeSubset(i*this._cbEnt, this._cbEnt);
                 if (this._cLevel == 0)
                 {
                     if (this._trailer.PageType == PageType.NBT)
-                        this.Entries.Add(new NBTENTRY(pageData, offset));
+                        this.Entries.Add(new NBTENTRY(curEntryBytes));
                     else
                     {
                         var curEntry = new BBTENTRY(curEntryBytes);

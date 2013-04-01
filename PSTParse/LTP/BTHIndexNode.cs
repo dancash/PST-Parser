@@ -19,9 +19,10 @@ namespace PSTParse.LTP
         {
             this.Level = level;
             this.HID = hid;
-            var bytes = tree.GetHIDBytes(hid);
-            this.Entries = new List<BTHIndexEntry>();
+            if (hid.hidBlockIndex == 0 && hid.hidIndex == 0)
+                return;
             
+            this.Entries = new List<BTHIndexEntry>();
 
             if (level == 0)
             {
@@ -34,6 +35,7 @@ namespace PSTParse.LTP
                     this.DataChildren.Add(new BTHDataNode(entry.HID, tree));*/
             } else
             {
+                var bytes = tree.GetHIDBytes(hid);
                 for (int i = 0; i < bytes.Data.Length; i += (int)tree.Header.KeySize + 4)
                     this.Entries.Add(new BTHIndexEntry(bytes.Data, i, tree.Header));
                 this.Children = new List<BTHIndexNode>();

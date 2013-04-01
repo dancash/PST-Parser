@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using PSTParse.LTP;
 using PSTParse.Message_Layer;
 using PSTParse.NDB;
 

@@ -25,10 +25,9 @@ namespace PSTParse.LTP
             this.EndOffset1 = BitConverter.ToUInt16(bytes, 6);
             this.EndOffsetCEB = BitConverter.ToUInt16(bytes, 8);
             this.RowIndexLocation = new HID(bytes, 10);
-            this.RowMatrixLocation = BitConverter.ToUInt64(bytes, 14);
-
+            this.RowMatrixLocation = BitConverter.ToUInt32(bytes, 14);
             this.ColumnsDescriptors = new List<TCOLDESC>();
-            for(var i = 0;i < this.ColumnCount; i++)
+            for (var i = 0; i < this.ColumnCount; i++)
             {
                 this.ColumnsDescriptors.Add(new TCOLDESC(bytes, 22 + i*8));
             }

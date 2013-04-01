@@ -23,6 +23,7 @@ namespace PSTParse.LTP
             this.BType = bytes[0];
             this.KeySize = bytes[1];
             this.DataSize = bytes[2];
+            this.NumLevels = bytes[3];
             this.BTreeRoot = new HID(bytes.RangeSubset(4, 4));
 
         }
