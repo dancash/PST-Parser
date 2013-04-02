@@ -74,7 +74,7 @@ namespace PSTParse.LTP
             {
                 if (this.ByteCount <= 4)
                 {
-                    this.Data = entry.Data.RangeSubset(0, (int) this.ByteCount);
+                    this.Data = entry.Data.RangeSubset(2, (int) this.ByteCount);
                 } else
                 {
                     this.Data = heap.GetHIDBytes(new HID(entry.Data, 2)).Data;

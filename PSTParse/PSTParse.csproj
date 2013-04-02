@@ -73,6 +73,7 @@
     <Compile Include="Message Layer\Message.cs" />
     <Compile Include="Message Layer\PropType.cs" />
     <Compile Include="NDB\BBTENTRY.cs" />
+    <Compile Include="NDB\BID.cs" />
     <Compile Include="NDB\BlockBO.cs" />
     <Compile Include="NDB\BlockDataDTO.cs" />
     <Compile Include="NDB\BlockFactory.cs" />

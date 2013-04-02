@@ -57,7 +57,13 @@ namespace PSTParse.LTP
 
                 if (cur.Data != null)
                     foreach (var entry in cur.Data.DataEntries)
-                        ret.Add(BitConverter.ToUInt16(entry.Key, 0), new ExchangeProperty(entry, this));
+                    {
+                        var curKey = BitConverter.ToUInt16(entry.Key, 0);
+                        int i = 0;
+                        if (curKey == 0x70)
+                            i++;
+                        ret.Add(curKey, new ExchangeProperty(entry, this));
+                    }
 
                 if (cur.Children != null)
                     foreach (var child in cur.Children)

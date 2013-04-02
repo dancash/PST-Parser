@@ -65,11 +65,14 @@ namespace PSTParse.NDB
 
         public BBTENTRY GetBIDBBTEntry(ulong BID)
         {
-
+            int ii = 0;
+            if (BID % 2 == 1)
+                ii++;
+            BID = BID & 0xfffffffffffffffe;
             for (int i = 0; i < this.Entries.Count; i++)
             {
                 var entry = this.Entries[i];
-                if (i == this.Entries.Count-1)
+                if (i == this.Entries.Count - 1)
                 {
 
                     if (entry is BTENTRY)
@@ -77,23 +80,27 @@ namespace PSTParse.NDB
                     else
                     {
                         var temp = entry as BBTENTRY;
-                        return temp;
+                        if (BID == temp.Key)
+                            return temp;
                     }
 
                 }
-                var entry2 = this.Entries[i + 1];
-                if (entry is BTENTRY)
+                else
                 {
-                    var cur = entry as BTENTRY;
-                    var next = entry2 as BTENTRY;
-                    if (BID >= cur.Key && BID < next.Key)
-                        return this.InternalChildren[i].GetBIDBBTEntry(BID);
-                }
-                else if (entry is BBTENTRY)
-                {
-                    var cur = entry as BBTENTRY;
-                    if (BID == cur.Key)
-                        return cur;
+                    var entry2 = this.Entries[i + 1];
+                    if (entry is BTENTRY)
+                    {
+                        var cur = entry as BTENTRY;
+                        var next = entry2 as BTENTRY;
+                        if (BID >= cur.Key && BID < next.Key)
+                            return this.InternalChildren[i].GetBIDBBTEntry(BID);
+                    }
+                    else if (entry is BBTENTRY)
+                    {
+                        var cur = entry as BBTENTRY;
+                        if (BID == cur.Key)
+                            return cur;
+                    }
                 }
             }
             return null;

@@ -19,6 +19,7 @@ namespace PSTParseApp
             //var pstPath = @"C:\test\dtmtcm@gmail.com.pst";
             //var pstPath = @"C:\test\Outlook Data File.pst";
             var pstPath = @"C:\test\StevenFisher.pst";
+            var logPath = @"C:\test\nidlog.txt";
             var pstSize = new FileInfo(pstPath).Length*1.0/1024/1024;
             using (var file = new PSTFile(pstPath))
             {
@@ -29,19 +30,26 @@ namespace PSTParseApp
                 var stack = new Stack<MailFolder>();
                 stack.Push(file.TopOfPST);
                 var totalCount = 0;
-                while (stack.Count > 0)
+                if (File.Exists(logPath))
+                    File.Delete(logPath);
+                using (var writer = new StreamWriter(logPath))
                 {
-                    var curFolder = stack.Pop();
-
-                    foreach (var child in curFolder.SubFolders)
-                        stack.Push(child);
-                    var count = curFolder.ContentsTC.RowIndexBTH.Properties.Count;
-                    totalCount += count;
-                    Console.WriteLine(String.Join(" -> ", curFolder.Path) + " ({0} messages)", count);
-
-                    foreach (var message in curFolder)
+                    while (stack.Count > 0)
                     {
+                        var curFolder = stack.Pop();
 
+                        foreach (var child in curFolder.SubFolders)
+                            stack.Push(child);
+                        var count = curFolder.ContentsTC.RowIndexBTH.Properties.Count;
+                        totalCount += count;
+                        Console.WriteLine(String.Join(" -> ", curFolder.Path) + " ({0} messages)", count);
+                    
+                        foreach (var message in curFolder)
+                        {
+                            Console.WriteLine(message.Subject);
+                            Console.WriteLine(message.Imporance);
+                            writer.WriteLine(ByteArrayToString(BitConverter.GetBytes(message.NID)));
+                        }
                     }
                 }
                 sw.Stop();
@@ -51,6 +59,14 @@ namespace PSTParseApp
                 //file.Header.NodeBT.Root.GetOffset(1);
                 Console.Read();
             }
+        }
+
+        public static string ByteArrayToString(byte[] ba)
+        {
+            StringBuilder hex = new StringBuilder(ba.Length * 2);
+            foreach (byte b in ba)
+                hex.AppendFormat("{0:x2}", b);
+            return hex.ToString();
         }
     }
 }
