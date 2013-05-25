@@ -26,16 +26,16 @@ namespace PSTParse.LTP
         }
 
         //this is only here for testing purposes, this needs to be moved
-        public bool BlankPassword()
+        public bool BlankPassword(PSTFile pst)
         {
             var toMatch = new byte[] {0xFF, 0x67};
             foreach (var entry in this.DataEntries)
                 if (entry.Key[0] == toMatch[0] && entry.Key[1] == toMatch[1])
                 {
-                    PSTFile.CurPST.CloseMMF();
+                    pst.CloseMMF();
                     //DatatEncoder.CryptPermute(ref this._data.Parent.Data, this._data.Parent.Data.Length, true);
 
-                    using (var stream = new FileStream(PSTFile.CurPST.Path, FileMode.Open))
+                    using (var stream = new FileStream(pst.Path, FileMode.Open))
                     {
                         var dataBlockOffset = entry.DataOffset;
 
@@ -46,7 +46,7 @@ namespace PSTParse.LTP
                         this._data.Parent.Data[dataBlockOffset + 4] = 0x00;
                         this._data.Parent.Data[dataBlockOffset + 5] = 0x00;
 
-                        DatatEncoder.CryptPermute(this._data.Parent.Data, this._data.Parent.Data.Length, true);
+                        DatatEncoder.CryptPermute(this._data.Parent.Data, this._data.Parent.Data.Length, true, pst);
 
                         var testCRC = (new CRC32()).ComputeCRC(0, this._data.Parent.Data, (uint)this._data.Parent.Data.Length);
                         stream.Seek((long)(this._data.Parent.PstOffset + entry.DataOffset), SeekOrigin.Begin);
@@ -64,7 +64,7 @@ namespace PSTParse.LTP
 
                         var newCRC = (new CRC32()).ComputeCRC(0, this._data.Parent.Data, (uint) this._data.Parent.Data.Length);
 
-                        DatatEncoder.CryptPermute(this._data.Parent.Data, this._data.Parent.Data.Length, false);
+                        DatatEncoder.CryptPermute(this._data.Parent.Data, this._data.Parent.Data.Length, false, pst);
                         var crcoffset = (int) (this._data.Parent.PstOffset + this._data.Parent.CRCOffset);
                         stream.Seek(crcoffset, SeekOrigin.Begin);
                         var temp = BitConverter.GetBytes(newCRC);
@@ -74,8 +74,8 @@ namespace PSTParse.LTP
                                          }, 0, 4);
                         
                     }
-                    
-                    PSTFile.CurPST.OpenMMF();
+
+                    pst.OpenMMF();
                     return true;
                 }
             

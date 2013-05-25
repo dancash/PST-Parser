@@ -24,7 +24,7 @@ namespace PSTParse.NDB
 
         public ulong BID { get { return this._trailer.BID; } }
 
-        public BTPage(byte[] pageData, BREF _ref)
+        public BTPage(byte[] pageData, BREF _ref, PSTFile pst)
         {
             this._ref = _ref;
             this.InternalChildren = new List<BTPage>();
@@ -53,11 +53,11 @@ namespace PSTParse.NDB
                     //btentries
                     var entry = new BTENTRY(curEntryBytes);
                     this.Entries.Add(entry);
-                    using (var view = PSTFile.PSTMMF.CreateViewAccessor((long)entry.BREF.IB,512))
+                    using (var view = pst.PSTMMF.CreateViewAccessor((long)entry.BREF.IB,512))
                     {
                         var bytes = new byte[512];
                         view.ReadArray(0, bytes, 0, 512);
-                        this.InternalChildren.Add(new BTPage(bytes, entry.BREF));
+                        this.InternalChildren.Add(new BTPage(bytes, entry.BREF, pst));
                     }
                 }
             }

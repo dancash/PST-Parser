@@ -45,13 +45,13 @@ namespace PSTParse.LTP
 
         }
 
-        public bool BlankPassword()
+        public bool BlankPassword(PSTFile pst)
         {
             if (this.Data != null)
-                return this.Data.BlankPassword();
+                return this.Data.BlankPassword(pst);
 
             foreach (var child in Children)
-                child.BlankPassword();
+                child.BlankPassword(pst);
                 /*if (child.BlankPassword(Data) != null)
                     return child.BlankPassword(Data);*/
 

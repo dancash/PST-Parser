@@ -67,11 +67,17 @@
     <Compile Include="LTP\TCOLDESC.cs" />
     <Compile Include="LTP\TCRowMatrix.cs" />
     <Compile Include="LTP\TCRowMatrixData.cs" />
+    <Compile Include="Message Layer\Attachment.cs" />
+    <Compile Include="Message Layer\IPMItem.cs" />
     <Compile Include="Message Layer\MailFolder.cs" />
     <Compile Include="Message Layer\MailStore.cs" />
     <Compile Include="LTP\PropertyContext.cs" />
     <Compile Include="Message Layer\Message.cs" />
+    <Compile Include="Message Layer\NamedProperty.cs" />
+    <Compile Include="Message Layer\NamedToPropertyLookup.cs" />
+    <Compile Include="Message Layer\NAMEID.cs" />
     <Compile Include="Message Layer\PropType.cs" />
+    <Compile Include="Message Layer\Recipient.cs" />
     <Compile Include="NDB\BBTENTRY.cs" />
     <Compile Include="NDB\BID.cs" />
     <Compile Include="NDB\BlockBO.cs" />
@@ -100,6 +106,7 @@
     <Compile Include="NDB\XBLOCK.cs" />
     <Compile Include="NDB\XXBLOCK.cs" />
     <Compile Include="PasswordReset.cs" />
+    <Compile Include="PSTEnums.cs" />
     <Compile Include="PSTFile.cs" />
     <Compile Include="PSTHeader.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

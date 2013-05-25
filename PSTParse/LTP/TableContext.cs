@@ -15,9 +15,9 @@ namespace PSTParse.LTP
         public Dictionary<uint, uint> ReverseRowIndex;
         public TCRowMatrix RowMatrix;
 
-        public TableContext(ulong nid)
+        public TableContext(ulong nid, PSTFile pst)
         {
-            this.NodeData = BlockBO.GetNodeData(nid);
+            this.NodeData = BlockBO.GetNodeData(nid, pst);
 
             this.HeapNode = new HN(this.NodeData);
 
@@ -32,7 +32,7 @@ namespace PSTParse.LTP
                 var temp = BitConverter.ToUInt32(prop.Value.Data, 0);
                 this.ReverseRowIndex.Add(temp,BitConverter.ToUInt32(prop.Key, 0));
             }
-            this.RowMatrix = new TCRowMatrix(this);
+            this.RowMatrix = new TCRowMatrix(this, this.RowIndexBTH);
         }
 
         public TableContext(NodeDataDTO nodeData)
@@ -51,7 +51,7 @@ namespace PSTParse.LTP
                 var temp = BitConverter.ToUInt32(prop.Value.Data, 0);
                 this.ReverseRowIndex.Add(temp, BitConverter.ToUInt32(prop.Key, 0));
             }
-            this.RowMatrix = new TCRowMatrix(this);
+            this.RowMatrix = new TCRowMatrix(this, this.RowIndexBTH);
         }
     }
 }

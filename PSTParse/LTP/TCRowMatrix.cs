@@ -14,7 +14,7 @@ namespace PSTParse.LTP
         public List<TCRowMatrixData> Rows;
         public Dictionary<uint, TCRowMatrixData> RowXREF; 
 
-        public TCRowMatrix(TableContext tableContext)
+        public TCRowMatrix(TableContext tableContext, BTH heap)
         {
             this.Rows = new List<TCRowMatrixData>();
             this.RowXREF = new Dictionary<uint, TCRowMatrixData>();
@@ -33,7 +33,15 @@ namespace PSTParse.LTP
                         }};
             } else
             {
-                this.TCRMData = this.TableContext.HeapNode.HeapSubNode[rowMatrixHNID].NodeData;
+                if (this.TableContext.HeapNode.HeapSubNode.ContainsKey(rowMatrixHNID))
+                    this.TCRMData = this.TableContext.HeapNode.HeapSubNode[rowMatrixHNID].NodeData;
+                else
+                {
+                    var tempSubNodes = new Dictionary<ulong, NodeDataDTO>();
+                    foreach(var nod in this.TableContext.HeapNode.HeapSubNode)
+                        tempSubNodes.Add(nod.Key & 0xffffffff, nod.Value);
+                    this.TCRMData = tempSubNodes[rowMatrixHNID].NodeData;
+                }
             }
             //this.TCRMSubNodeData = this.TableContext.HeapNode.HeapSubNode[];
             var rowSize = this.TableContext.TCHeader.EndOffsetCEB;
@@ -49,7 +57,8 @@ namespace PSTParse.LTP
 
                 var blockIndex = (int)rowIndex/recordsPerBlock;
                 var indexInBlock = rowIndex%recordsPerBlock;
-                var curRow = new TCRowMatrixData(this.TCRMData[blockIndex].Data, this.TableContext, (int)indexInBlock*rowSize);
+                var curRow = new TCRowMatrixData(this.TCRMData[blockIndex].Data, this.TableContext, heap,
+                                                 (int) indexInBlock*rowSize);
                 this.RowXREF.Add(BitConverter.ToUInt32(row.Key, 0), curRow);
                 this.Rows.Add(curRow);
             }

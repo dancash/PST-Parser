@@ -22,7 +22,7 @@ namespace PSTParse.Message_Layer
         Private = 0x02,
         Confidential = 0x03
     }
-    public class Message
+    public class Message: IPMItem
     {
         public uint NID { get; set; }
         public NodeDataDTO Data;
@@ -32,10 +32,11 @@ namespace PSTParse.Message_Layer
         public PropertyContext AttachmentPC;
 
         public String Subject;
+        public String SubjectPrefix;
         public Importance Imporance;
         public Sensitivity Sensitivity;
         public DateTime LastSaved;
-        public String MessageClass;
+        
         public DateTime ClientSubmitTime;
         public string SentRepresentingName;
         public string ConversationTopic;
@@ -61,14 +62,25 @@ namespace PSTParse.Message_Layer
         public DateTime CreationTime;
         public DateTime LastModificationTime;
         public UInt32 CodePage;
+        public String CreatorName;
+        public UInt32 NonUnicodeCodePage;
 
         private UInt32 MessageFlags;
+        private IPMItem _IPMItem;
 
-        public Message(uint NID)
+        public List<Recipient> To = new List<Recipient>();
+        public List<Recipient> From = new List<Recipient>();
+        public List<Recipient> CC = new List<Recipient>();
+        public List<Recipient> BCC = new List<Recipient>();
+
+        public List<Attachment> Attachments = new List<Attachment>(); 
+
+        public Message(uint NID, IPMItem item, PSTFile pst)
         {
-            this.Data = BlockBO.GetNodeData(NID);
+            this._IPMItem = item;
+            this.Data = BlockBO.GetNodeData(NID, pst);
             this.NID = NID;
-            this.MessagePC = new PropertyContext(this.Data);
+            //this.MessagePC = new PropertyContext(this.Data);
             foreach(var subNode in this.Data.SubNodeData)
             {
                 var temp = new NID(subNode.Key);
@@ -79,13 +91,38 @@ namespace PSTParse.Message_Layer
                         break;
                     case NDB.NID.NodeType.ATTACHMENT_PC:
                         this.AttachmentPC = new PropertyContext(subNode.Value);
+                        this.Attachments = new List<Attachment>();
+                        foreach(var row in this.AttachmentTable.RowMatrix.Rows)
+                        {
+                            this.Attachments.Add(new Attachment(row));
+                        }
                         break;
                     case NDB.NID.NodeType.RECIPIENT_TABLE:
                         this.RecipientTable = new TableContext(subNode.Value);
+                        
+                        foreach(var row in this.RecipientTable.RowMatrix.Rows)
+                        {
+                            var recipient = new Recipient(row);
+                            switch(recipient.Type)
+                            {
+                                case Recipient.RecipientType.TO:
+                                    this.To.Add(recipient);
+                                    break;
+                                case Recipient.RecipientType.FROM:
+                                    this.From.Add(recipient);
+                                    break;
+                                case Recipient.RecipientType.CC:
+                                    this.CC.Add(recipient);
+                                    break;
+                                case Recipient.RecipientType.BCC:
+                                    this.BCC.Add(recipient);
+                                    break;
+                            }
+                        }
                         break;
                 }
             }
-            foreach(var prop in this.MessagePC.Properties)
+            foreach(var prop in this._IPMItem.PC.Properties)
             {
                 if (prop.Value.Data == null)
                     continue;
@@ -98,7 +135,20 @@ namespace PSTParse.Message_Layer
                         this.Sensitivity = (Sensitivity) BitConverter.ToInt16(prop.Value.Data, 0);
                         break;
                     case 0x37:
-                        this.Subject = Encoding.Unicode.GetString(prop.Value.Data, 4, prop.Value.Data.Length - 4);
+                        this.Subject = Encoding.Unicode.GetString(prop.Value.Data);
+                        if (this.Subject.Length > 0)
+                        {
+                            var chars = this.Subject.ToCharArray();
+                            if (chars[0] == 0x001)
+                            {
+                                var length = (int)chars[1];
+                                int i = 0;
+                                if (length > 1)
+                                    i++;
+                                this.SubjectPrefix = this.Subject.Substring(2, length-1);
+                                this.Subject = this.Subject.Substring(2 + length-1);
+                            }
+                        }
                         break;
                     case 0x39:
                         this.ClientSubmitTime = DateTime.FromFileTimeUtc(BitConverter.ToInt64(prop.Value.Data, 0));
@@ -181,6 +231,33 @@ namespace PSTParse.Message_Layer
                         break;
                     case 0x3fDE:
                         this.CodePage = BitConverter.ToUInt32(prop.Value.Data, 0);
+                        break;
+                    case 0x3ff1:
+                        //localeID
+                        break;
+                    case 0x3ff8:
+                        this.CreatorName = Encoding.Unicode.GetString(prop.Value.Data);
+                        break;
+                    case 0x3ff9:
+                        //creator entryid
+                        break;
+                    case 0x3ffa:
+                        //last modifier name
+                        break;
+                    case 0x3ffb:
+                        //last modifier entryid
+                        break;
+                    case 0x3ffd:
+                        this.NonUnicodeCodePage = BitConverter.ToUInt32(prop.Value.Data, 0);
+                        break;
+                    case 0x4019:
+                        //unknown
+                        break;
+                    case 0x401a:
+                        //sentrepresentingflags
+                        break;
+                    case 0x619:
+                        //userentryid
                         break;
                     default:
                         break;

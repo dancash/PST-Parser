@@ -22,9 +22,9 @@ namespace PSTParse
             CYCLIC=2
         }
 
-        public PSTHeader()
+        public PSTHeader(PSTFile pst)
         {
-            using(var mmfView = PSTFile.PSTMMF.CreateViewAccessor(0, 684))
+            using(var mmfView = pst.PSTMMF.CreateViewAccessor(0, 684))
             {
                 var temp = new byte[4];
                 mmfView.ReadArray(0, temp, 0, 4);
@@ -53,8 +53,8 @@ namespace PSTParse
                     mmfView.ReadArray(232, bytes, 0, 16);
                     var bbt_bref = new BREF(bytes);
 
-                    this.NodeBT = new NDB.PSTBTree(nbt_bref);
-                    this.BlockBT = new NDB.PSTBTree(bbt_bref);
+                    this.NodeBT = new NDB.PSTBTree(nbt_bref, pst);
+                    this.BlockBT = new NDB.PSTBTree(bbt_bref, pst);
                 }
             }
         }

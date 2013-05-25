@@ -60,7 +60,7 @@ namespace PSTParse.LTP
                     {
                         var curKey = BitConverter.ToUInt16(entry.Key, 0);
                         int i = 0;
-                        if (curKey == 0x70)
+                        if (curKey == 0x02)
                             i++;
                         ret.Add(curKey, new ExchangeProperty(entry, this));
                     }

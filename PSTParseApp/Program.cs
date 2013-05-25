@@ -18,7 +18,7 @@ namespace PSTParseApp
             //var pstPath = @"C:\test\FranCoen_Export_0001.pst";
             //var pstPath = @"C:\test\dtmtcm@gmail.com.pst";
             //var pstPath = @"C:\test\Outlook Data File.pst";
-            var pstPath = @"C:\test\StevenFisher.pst";
+            var pstPath = @"C:\test\StevenFisher2.pst";
             var logPath = @"C:\test\nidlog.txt";
             var pstSize = new FileInfo(pstPath).Length*1.0/1024/1024;
             using (var file = new PSTFile(pstPath))
@@ -44,11 +44,30 @@ namespace PSTParseApp
                         totalCount += count;
                         Console.WriteLine(String.Join(" -> ", curFolder.Path) + " ({0} messages)", count);
                     
-                        foreach (var message in curFolder)
+                        foreach (var ipmItem in curFolder)
                         {
-                            Console.WriteLine(message.Subject);
-                            Console.WriteLine(message.Imporance);
-                            writer.WriteLine(ByteArrayToString(BitConverter.GetBytes(message.NID)));
+                            if (ipmItem is Message)
+                            {
+                                var message = ipmItem as Message;
+                                Console.WriteLine(message.Subject);
+                                Console.WriteLine(message.Imporance);
+                                Console.WriteLine("Sender Name: " + message.SenderName);
+                                if (message.From.Count > 0)
+                                    Console.WriteLine("From: {0}",
+                                                      String.Join("; ", message.From.Select(r => r.EmailAddress)));
+                                if (message.To.Count > 0)
+                                    Console.WriteLine("To: {0}",
+                                                      String.Join("; ", message.To.Select(r => r.EmailAddress)));
+                                if (message.CC.Count > 0)
+                                    Console.WriteLine("CC: {0}",
+                                                      String.Join("; ", message.CC.Select(r => r.EmailAddress)));
+                                if (message.BCC.Count > 0)
+                                    Console.WriteLine("BCC: {0}",
+                                                      String.Join("; ", message.BCC.Select(r => r.EmailAddress)));
+                                
+
+                                writer.WriteLine(ByteArrayToString(BitConverter.GetBytes(message.NID)));
+                            }
                         }
                     }
                 }

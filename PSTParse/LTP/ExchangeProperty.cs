@@ -51,15 +51,38 @@ namespace PSTParse.LTP
         public bool Variable;
         public uint ByteCount;
         public byte[] Data;
-        private BTHDataEntry entry;
+        //private BTHDataEntry entry;
+        private byte[] Key;
 
         public ExchangeProperty() {}
 
+        public ExchangeProperty(UInt16 ID, UInt16 type, BTH heap, byte[] key)
+        {
+            this.ID = ID;
+            this.Type = type;
+            /*var tempKey = new byte[key.Length + 2];
+            tempKey[0] = 0x00;
+            tempKey[1] = 0x00;
+            for (int i = 0; i < key.Length; i++)
+                tempKey[i + 2] = key[i];*/
+            this.Key = key;
+
+            GetData(heap, true);
+        }
+
         public ExchangeProperty(BTHDataEntry entry, BTH heap)
         {
-            this.entry = entry;
+            //this.entry = entry;
+
+            this.Key = entry.Data.RangeSubset(2, entry.Data.Length - 2);
             this.ID = BitConverter.ToUInt16(entry.Key, 0);
             this.Type = BitConverter.ToUInt16(entry.Data, 0);
+
+            this.GetData(heap);
+        }
+
+        private void GetData(BTH heap, bool isTable = false)
+        {
             if (ExchangeProperty.PropertyLookupByTypeID.ContainsKey(this.Type))
             {
                 var prop = ExchangeProperty.PropertyLookupByTypeID[this.Type];
@@ -67,51 +90,53 @@ namespace PSTParse.LTP
                 this.Variable = prop.Variable;
                 this.ByteCount = prop.ByteCount;
             }
-
             //get data here
 
             if (!this.MultiValue && !this.Variable)
             {
-                if (this.ByteCount <= 4)
+                if (this.ByteCount <= 4 || (isTable && this.ByteCount <= 8))
                 {
-                    this.Data = entry.Data.RangeSubset(2, (int) this.ByteCount);
-                } else
-                {
-                    this.Data = heap.GetHIDBytes(new HID(entry.Data, 2)).Data;
+                    this.Data = this.Key;
                 }
-            } else
+                else
+                {
+                    this.Data = heap.GetHIDBytes(new HID(this.Key)).Data;
+                }
+            }
+            else
             {
                 //oh no, it's an HNID
-                var curID = BitConverter.ToUInt32(entry.Data,2);
+                var curID = BitConverter.ToUInt32(this.Key, 0);
 
                 if (curID == 0)
                 {
-                    
-                } else if ((curID & 0x1F) == 0) //must be HID
+
+                }
+                else if ((curID & 0x1F) == 0) //must be HID
                 {
-                    this.Data = heap.GetHIDBytes(new HID(entry.Data,2)).Data;
-                } else //let's assume NID
+                    this.Data = heap.GetHIDBytes(new HID(this.Key)).Data;
+                }
+                else //let's assume NID
                 {
                     var totalSize = 0;
                     var dataBlocks = new List<BlockDataDTO>();
-                    int ii = 0;
-                    if (entry.ParentTree.HeapNode.HeapSubNode.ContainsKey(curID))
-                        dataBlocks = entry.ParentTree.HeapNode.HeapSubNode[curID].NodeData;
+                    if (heap.HeapNode.HeapSubNode.ContainsKey(curID))
+                        dataBlocks = heap.HeapNode.HeapSubNode[curID].NodeData;
                     else
                     {
                         var tempSubNodeXREF = new Dictionary<ulong, NodeDataDTO>();
-                        foreach (var heapSubNode in entry.ParentTree.HeapNode.HeapSubNode)
+                        foreach (var heapSubNode in heap.HeapNode.HeapSubNode)
                             tempSubNodeXREF.Add(heapSubNode.Key & 0xFFFFFFFF, heapSubNode.Value);
                         dataBlocks = tempSubNodeXREF[curID].NodeData;
                         //dataBlocks = entry.ParentTree.HeapNode.HeapSubNode[curID].NodeData;
                     }
-                    foreach(var dataBlock in dataBlocks)
+                    foreach (var dataBlock in dataBlocks)
                         totalSize += dataBlock.Data.Length;
                     var allData = new byte[totalSize];
                     var curPos = 0;
-                    foreach(var datablock in dataBlocks)
+                    foreach (var datablock in dataBlocks)
                     {
-                        for(int i =0; i < datablock.Data.Length;i++)
+                        for (int i = 0; i < datablock.Data.Length; i++)
                         {
                             allData[i + curPos] = datablock.Data[i];
                         }

@@ -1,19 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using PSTParse.LTP;
-using PSTParse.Message_Layer;
+﻿using PSTParse.LTP;
 using PSTParse.NDB;
 
 namespace PSTParse
 {
     public static class PasswordReset
     {
-        public static bool ResetPassword()
+        public static bool ResetPassword(PSTFile pst)
         {
-            var pc = new PropertyContext(SpecialNIDs.NID_MESSAGE_STORE);
-            var offset = pc.BTH.Root.BlankPassword();
+            var pc = new PropertyContext(SpecialNIDs.NID_MESSAGE_STORE, pst);
+            var offset = pc.BTH.Root.BlankPassword(pst);
 
 
 
