@@ -15,10 +15,7 @@ namespace PSTParseApp
         {
             var sw = new Stopwatch();
             sw.Start();
-            //var pstPath = @"C:\test\FranCoen_Export_0001.pst";
-            //var pstPath = @"C:\test\dtmtcm@gmail.com.pst";
-            //var pstPath = @"C:\test\Outlook Data File.pst";
-            var pstPath = @"C:\test\StevenFisher2.pst";
+            var pstPath = @"C:\test\dtmtcm@gmail.com.pst";
             var logPath = @"C:\test\nidlog.txt";
             var pstSize = new FileInfo(pstPath).Length*1.0/1024/1024;
             using (var file = new PSTFile(pstPath))
