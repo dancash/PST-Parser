@@ -14,7 +14,7 @@ A library for reading the <a href="http://msdn.microsoft.com/en-us/library/ff385
   
   The messaging layer uses the LTP layer to represent folder heirarchies and the messages that exist in a give folder.
   
-## LICENSE
+## LICENSE - MIT
 
 Copyright (c) 2017 Daniel Cash
 
