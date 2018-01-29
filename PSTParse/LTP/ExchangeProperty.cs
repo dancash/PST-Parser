@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using MiscParseUtilities;
 using PSTParse.NDB;
+using PSTParse.Utilities;
 
 namespace PSTParse.LTP
 {

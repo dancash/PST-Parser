@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using PSTParse;
 using PSTParse.Message_Layer;
+using PSTParse.NDB;
 
 namespace PSTParseApp
 {
@@ -15,9 +16,9 @@ namespace PSTParseApp
         {
             var sw = new Stopwatch();
             sw.Start();
-            var pstPath = @"C:\test\dtmtcm@gmail.com.pst";
-            var logPath = @"C:\test\nidlog.txt";
-            var pstSize = new FileInfo(pstPath).Length*1.0/1024/1024;
+            var pstPath = @"C:\temp\pstCreation\sharp_test.pst";
+            var logPath = @"C:\temp\pstCreation\outTest.log";
+            var pstSize = new FileInfo(pstPath).Length * 1.0 / 1024 / 1024;
             using (var file = new PSTFile(pstPath))
             {
                 Console.WriteLine("Magic value: " + file.Header.DWMagic);
@@ -40,12 +41,16 @@ namespace PSTParseApp
                         var count = curFolder.ContentsTC.RowIndexBTH.Properties.Count;
                         totalCount += count;
                         Console.WriteLine(String.Join(" -> ", curFolder.Path) + " ({0} messages)", count);
-                    
+
                         foreach (var ipmItem in curFolder)
                         {
                             if (ipmItem is Message)
                             {
                                 var message = ipmItem as Message;
+                                //var bytes = new List<byte>();
+                                //ParseBytes(message.Data, bytes);
+                                //File.WriteAllBytes(@"C:\temp\pstCreation\fakeMessage.msg", message.Data.NodeData.First().Data);
+                                //File.WriteAllBytes(@"C:\temp\pstCreation\fakeMessage.msg", bytes.ToArray());
                                 Console.WriteLine(message.Subject);
                                 Console.WriteLine(message.Imporance);
                                 Console.WriteLine("Sender Name: " + message.SenderName);
@@ -61,7 +66,7 @@ namespace PSTParseApp
                                 if (message.BCC.Count > 0)
                                     Console.WriteLine("BCC: {0}",
                                                       String.Join("; ", message.BCC.Select(r => r.EmailAddress)));
-                                
+
 
                                 writer.WriteLine(ByteArrayToString(BitConverter.GetBytes(message.NID)));
                             }
@@ -74,6 +79,19 @@ namespace PSTParseApp
                                   sw.ElapsedMilliseconds, pstSize);
                 //file.Header.NodeBT.Root.GetOffset(1);
                 Console.Read();
+            }
+        }
+
+        public static void ParseBytes(NodeDataDTO node, List<byte> bytes)
+        {
+            foreach (var temp in node.NodeData)
+            {
+                bytes.AddRange(temp.Data);
+            }
+
+            foreach (var temp2 in node.SubNodeData ?? new Dictionary<ulong, NodeDataDTO>())
+            {
+                ParseBytes(temp2.Value, bytes);
             }
         }
 

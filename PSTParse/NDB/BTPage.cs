@@ -1,7 +1,6 @@
-﻿using System;
+﻿using PSTParse.Utilities;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using MiscParseUtilities;
 
 namespace PSTParse.NDB
 {
@@ -12,7 +11,7 @@ namespace PSTParse.NDB
         private int _maxEntries;
         private int _cbEnt;
         private int _cLevel;
-        private bool _isNBT;
+        //private bool _isNBT;
         private BREF _ref;
 
         public List<BTPAGEENTRY> Entries;

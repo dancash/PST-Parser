@@ -1,6 +1,6 @@
 ﻿using System;
-using MiscParseUtilities;
 using PSTParse.NDB;
+using PSTParse.Utilities;
 
 namespace PSTParse.LTP
 {

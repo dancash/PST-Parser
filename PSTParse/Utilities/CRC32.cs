@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MiscParseUtilities
+namespace PSTParse.Utilities
 {
 
 

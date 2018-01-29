@@ -1,11 +1,11 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27130.2010
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PSTParse", "PSTParse\PSTParse.csproj", "{D8896CE5-BEFD-4F1F-9B7C-24A5ABDE5683}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PSTParseApp", "PSTParseApp\PSTParseApp.csproj", "{9159D5C8-F773-4AC1-8927-48A0B35F40F0}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiscParseUtilities", "MiscParseUtilities\MiscParseUtilities.csproj", "{52D784A1-1B5A-47B2-87FA-8D5E6231A578}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -37,18 +37,11 @@ Global
 		{9159D5C8-F773-4AC1-8927-48A0B35F40F0}.Release|Mixed Platforms.Build.0 = Release|x86
 		{9159D5C8-F773-4AC1-8927-48A0B35F40F0}.Release|x86.ActiveCfg = Release|x86
 		{9159D5C8-F773-4AC1-8927-48A0B35F40F0}.Release|x86.Build.0 = Release|x86
-		{52D784A1-1B5A-47B2-87FA-8D5E6231A578}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{52D784A1-1B5A-47B2-87FA-8D5E6231A578}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{52D784A1-1B5A-47B2-87FA-8D5E6231A578}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{52D784A1-1B5A-47B2-87FA-8D5E6231A578}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{52D784A1-1B5A-47B2-87FA-8D5E6231A578}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{52D784A1-1B5A-47B2-87FA-8D5E6231A578}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{52D784A1-1B5A-47B2-87FA-8D5E6231A578}.Release|Any CPU.Build.0 = Release|Any CPU
-		{52D784A1-1B5A-47B2-87FA-8D5E6231A578}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{52D784A1-1B5A-47B2-87FA-8D5E6231A578}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{52D784A1-1B5A-47B2-87FA-8D5E6231A578}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {482D6A0A-3459-4DF1-B7DB-3DA39AE9D67D}
 	EndGlobalSection
 EndGlobal

@@ -111,12 +111,8 @@
     <Compile Include="PSTHeader.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PSTParser.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\MiscParseUtilities\MiscParseUtilities.csproj">
-      <Project>{52D784A1-1B5A-47B2-87FA-8D5E6231A578}</Project>
-      <Name>MiscParseUtilities</Name>
-    </ProjectReference>
+    <Compile Include="Utilities\ArrayUtilities.cs" />
+    <Compile Include="Utilities\CRC32.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using MiscParseUtilities;
 using PSTParse.LTP;
 using PSTParse.NDB;
+using PSTParse.Utilities;
 
 namespace PSTParse.Message_Layer
 {
