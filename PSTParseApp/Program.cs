@@ -5,8 +5,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using PSTParse;
-using PSTParse.Message_Layer;
-using PSTParse.NDB;
+using PSTParse.MessageLayer;
+using PSTParse.NodeDatabaseLayer;
 
 namespace PSTParseApp
 {
