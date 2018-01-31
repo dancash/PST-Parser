@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using PSTParse.MessageLayer;
 using PSTParse.NodeDatabaseLayer;
 
 namespace PSTParse.ListsTablesPropertiesLayer
@@ -8,7 +9,7 @@ namespace PSTParse.ListsTablesPropertiesLayer
     {
         public BTH BTH;
 
-        public Dictionary<UInt16,ExchangeProperty> Properties;
+        public Dictionary<MessageProperty, ExchangeProperty> Properties;
 
         public PropertyContext(ulong nid, PSTFile pst)
         {

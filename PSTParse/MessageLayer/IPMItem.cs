@@ -16,7 +16,7 @@ namespace PSTParse.MessageLayer
         {
             this._nid = nid;
             this.PC = new PropertyContext(nid, pst);
-            this.MessageClass = Encoding.Unicode.GetString(this.PC.Properties[0x1a].Data);
+            this.MessageClass = Encoding.Unicode.GetString(this.PC.Properties[(MessageProperty)0x1a].Data);
 
         }
 

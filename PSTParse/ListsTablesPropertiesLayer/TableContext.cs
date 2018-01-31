@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using PSTParse.NodeDatabaseLayer;
 
 namespace PSTParse.ListsTablesPropertiesLayer
@@ -17,41 +15,41 @@ namespace PSTParse.ListsTablesPropertiesLayer
 
         public TableContext(ulong nid, PSTFile pst)
         {
-            this.NodeData = BlockBO.GetNodeData(nid, pst);
+            NodeData = BlockBO.GetNodeData(nid, pst);
 
-            this.HeapNode = new HN(this.NodeData);
+            HeapNode = new HN(NodeData);
 
-            var tcinfoHID = this.HeapNode.HeapNodes[0].Header.UserRoot;
-            var tcinfoHIDbytes = this.HeapNode.GetHIDBytes(tcinfoHID);
-            this.TCHeader = new TCINFOHEADER(tcinfoHIDbytes.Data);
+            var tcinfoHID = HeapNode.HeapNodes[0].Header.UserRoot;
+            var tcinfoHIDbytes = HeapNode.GetHIDBytes(tcinfoHID);
+            TCHeader = new TCINFOHEADER(tcinfoHIDbytes.Data);
 
-            this.RowIndexBTH = new BTH(this.HeapNode,this.TCHeader.RowIndexLocation);
-            this.ReverseRowIndex = new Dictionary<uint, uint>();
-            foreach(var prop in this.RowIndexBTH.Properties)
+            RowIndexBTH = new BTH(HeapNode,TCHeader.RowIndexLocation);
+            ReverseRowIndex = new Dictionary<uint, uint>();
+            foreach(var prop in RowIndexBTH.Properties)
             {
                 var temp = BitConverter.ToUInt32(prop.Value.Data, 0);
-                this.ReverseRowIndex.Add(temp,BitConverter.ToUInt32(prop.Key, 0));
+                ReverseRowIndex.Add(temp,BitConverter.ToUInt32(prop.Key, 0));
             }
-            this.RowMatrix = new TCRowMatrix(this, this.RowIndexBTH);
+            RowMatrix = new TCRowMatrix(this, RowIndexBTH);
         }
 
         public TableContext(NodeDataDTO nodeData)
         {
-            this.NodeData = nodeData;
-            this.HeapNode = new HN(this.NodeData);
+            NodeData = nodeData;
+            HeapNode = new HN(NodeData);
 
-            var tcinfoHID = this.HeapNode.HeapNodes[0].Header.UserRoot;
-            var tcinfoHIDbytes = this.HeapNode.GetHIDBytes(tcinfoHID);
-            this.TCHeader = new TCINFOHEADER(tcinfoHIDbytes.Data);
+            var tcinfoHID = HeapNode.HeapNodes[0].Header.UserRoot;
+            var tcinfoHIDbytes = HeapNode.GetHIDBytes(tcinfoHID);
+            TCHeader = new TCINFOHEADER(tcinfoHIDbytes.Data);
 
-            this.RowIndexBTH = new BTH(this.HeapNode, this.TCHeader.RowIndexLocation);
-            this.ReverseRowIndex = new Dictionary<uint, uint>();
-            foreach (var prop in this.RowIndexBTH.Properties)
+            RowIndexBTH = new BTH(HeapNode, TCHeader.RowIndexLocation);
+            ReverseRowIndex = new Dictionary<uint, uint>();
+            foreach (var prop in RowIndexBTH.Properties)
             {
                 var temp = BitConverter.ToUInt32(prop.Value.Data, 0);
-                this.ReverseRowIndex.Add(temp, BitConverter.ToUInt32(prop.Key, 0));
+                ReverseRowIndex.Add(temp, BitConverter.ToUInt32(prop.Key, 0));
             }
-            this.RowMatrix = new TCRowMatrix(this, this.RowIndexBTH);
+            RowMatrix = new TCRowMatrix(this, RowIndexBTH);
         }
     }
 }

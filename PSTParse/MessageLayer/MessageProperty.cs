@@ -1,6 +1,8 @@
-﻿namespace PSTParse.MessageLayer
+﻿using System;
+
+namespace PSTParse.MessageLayer
 {
-    public enum MessageProperty
+    public enum MessageProperty : uint
     {
         GuidList = 0x2,
         EntryList = 0x3,

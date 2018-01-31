@@ -1,4 +1,5 @@
-﻿using PSTParse.Utilities;
+﻿using PSTParse.MessageLayer;
+using PSTParse.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,7 +17,7 @@ namespace PSTParse.ListsTablesPropertiesLayer
         {
             this.PropID = BitConverter.ToUInt16(bytes.Take(2).ToArray(), 0);
             this.PropType = BitConverter.ToUInt16(bytes.Skip(2).Take(2).ToArray(), 0);
-            var prop= this.PropertyValue = ExchangeProperty.PropertyLookupByTypeID[PropType];
+            var prop= this.PropertyValue = ExchangeProperty.PropertyLookupByTypeID[(MessageProperty)PropType];
             if (!prop.MultiValue)
             {
                 if (!prop.Variable)

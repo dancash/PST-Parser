@@ -45,15 +45,17 @@ namespace PSTParseApp
                         var counter = 0;
                         foreach (var ipmItem in curFolder)
                         {
-                            counter++;
-                            if (counter == 1) continue;
+                            //counter++;
+                            //if (counter == 1) continue;
                             if (ipmItem is Message)
                             {
                                 var message = ipmItem as Message;
-                                //var bytes = new List<byte>();
-                                //ParseBytes(message.Data, bytes);
-                                //File.WriteAllBytes(@"C:\temp\pstCreation\fakeMessage.msg", message.Data.NodeData.First().Data);
-                                //File.WriteAllBytes(@"C:\temp\pstCreation\fakeMessage.msg", bytes.ToArray());
+
+                                foreach (var attachment in message.Attachments)
+                                {
+                                    File.WriteAllBytes($@"C:\Users\u403598\Desktop\temp\tempPLEASES\{Guid.NewGuid().ToString().Substring(0, 5)}-{attachment.AttachmentLongFileName}", attachment.Data);
+                                }
+
                                 Console.WriteLine(message.Subject);
                                 Console.WriteLine(message.Imporance);
                                 Console.WriteLine("Sender Name: " + message.SenderName);

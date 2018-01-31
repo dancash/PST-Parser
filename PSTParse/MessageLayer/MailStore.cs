@@ -11,7 +11,7 @@ namespace PSTParse.MessageLayer
         public MailStore(PSTFile pst)
         {
             this._pc = new PropertyContext(SpecialNIDs.NID_MESSAGE_STORE, pst);
-            this.RootFolder = new EntryID(this._pc.BTH.GetExchangeProperties()[0x35e0].Data);
+            this.RootFolder = new EntryID(this._pc.BTH.GetExchangeProperties()[(MessageProperty)0x35e0].Data);
         }
     }
 }

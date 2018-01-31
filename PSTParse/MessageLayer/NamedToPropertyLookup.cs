@@ -24,9 +24,9 @@ namespace PSTParse.MessageLayer
         {
             
             this.PC = new PropertyContext(NamedToPropertyLookup.NODE_ID, pst);
-            this._GUIDs = this.PC.Properties[0x0002].Data;
-            this._entries = this.PC.Properties[0x0003].Data;
-            this._string = this.PC.Properties[0x0004].Data;
+            this._GUIDs = this.PC.Properties[(MessageProperty)0x0002].Data;
+            this._entries = this.PC.Properties[(MessageProperty)0x0003].Data;
+            this._string = this.PC.Properties[(MessageProperty)0x0004].Data;
 
             this.Lookup = new Dictionary<ushort, NAMEID>();
             for (int i = 0; i < this._entries.Length; i += 8)

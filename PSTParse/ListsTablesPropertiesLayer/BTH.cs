@@ -1,4 +1,5 @@
-﻿using PSTParse.Utilities;
+﻿using PSTParse.MessageLayer;
+using PSTParse.Utilities;
 using System;
 using System.Collections.Generic;
 
@@ -45,9 +46,9 @@ namespace PSTParse.ListsTablesPropertiesLayer
             return this.HeapNode.GetHIDBytes(hid);
         }
 
-        public Dictionary<ushort, ExchangeProperty> GetExchangeProperties()
+        public Dictionary<MessageProperty, ExchangeProperty> GetExchangeProperties()
         {
-            var ret = new Dictionary<ushort, ExchangeProperty>();
+            var ret = new Dictionary<MessageProperty, ExchangeProperty>();
 
             var stack = new Stack<BTHIndexNode>();
             stack.Push(this.Root);
@@ -62,7 +63,7 @@ namespace PSTParse.ListsTablesPropertiesLayer
                         int i = 0;
                         if (curKey == 0x02)
                             i++;
-                        ret.Add(curKey, new ExchangeProperty(entry, this));
+                        ret.Add((MessageProperty)curKey, new ExchangeProperty(entry, this));
                     }
 
                 if (cur.Children != null)
