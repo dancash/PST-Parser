@@ -22,12 +22,12 @@ namespace PSTParse.MessageLayer
         Private = 0x02,
         Confidential = 0x03
     }
-    public class Message: IPMItem
+    public class Message : IPMItem
     {
         public uint NID { get; set; }
         public NodeDataDTO Data;
         public PropertyContext MessagePC;
-        public TableContext AttachmentTable;
+        public TableContext AttachmentTable { get; set; }
         public TableContext RecipientTable;
         public PropertyContext AttachmentPC;
 
@@ -36,7 +36,7 @@ namespace PSTParse.MessageLayer
         public Importance Imporance;
         public Sensitivity Sensitivity;
         public DateTime LastSaved;
-        
+
         public DateTime ClientSubmitTime;
         public string SentRepresentingName;
         public string ConversationTopic;
@@ -73,7 +73,7 @@ namespace PSTParse.MessageLayer
         public List<Recipient> CC = new List<Recipient>();
         public List<Recipient> BCC = new List<Recipient>();
 
-        public List<Attachment> Attachments = new List<Attachment>(); 
+        public List<Attachment> Attachments { get; set; } = new List<Attachment>();
 
         public Message(uint NID, IPMItem item, PSTFile pst)
         {
@@ -81,29 +81,29 @@ namespace PSTParse.MessageLayer
             this.Data = BlockBO.GetNodeData(NID, pst);
             this.NID = NID;
             //this.MessagePC = new PropertyContext(this.Data);
-            foreach(var subNode in this.Data.SubNodeData)
+            foreach (var subNode in this.Data.SubNodeData)
             {
                 var temp = new NID(subNode.Key);
-                switch(temp.Type)
+                switch (temp.Type)
                 {
                     case NodeDatabaseLayer.NID.NodeType.ATTACHMENT_TABLE:
-                        this.AttachmentTable = new TableContext(subNode.Value);
+                        AttachmentTable = new TableContext(subNode.Value);
                         break;
                     case NodeDatabaseLayer.NID.NodeType.ATTACHMENT_PC:
                         this.AttachmentPC = new PropertyContext(subNode.Value);
-                        this.Attachments = new List<Attachment>();
-                        foreach(var row in this.AttachmentTable.RowMatrix.Rows)
+                        Attachments = new List<Attachment>();
+                        foreach (var row in this.AttachmentTable.RowMatrix.Rows)
                         {
-                            this.Attachments.Add(new Attachment(row));
+                            Attachments.Add(new Attachment(row));
                         }
                         break;
                     case NodeDatabaseLayer.NID.NodeType.RECIPIENT_TABLE:
                         this.RecipientTable = new TableContext(subNode.Value);
-                        
-                        foreach(var row in this.RecipientTable.RowMatrix.Rows)
+
+                        foreach (var row in this.RecipientTable.RowMatrix.Rows)
                         {
                             var recipient = new Recipient(row);
-                            switch(recipient.Type)
+                            switch (recipient.Type)
                             {
                                 case Recipient.RecipientType.TO:
                                     this.To.Add(recipient);
@@ -122,17 +122,17 @@ namespace PSTParse.MessageLayer
                         break;
                 }
             }
-            foreach(var prop in this._IPMItem.PC.Properties)
+            foreach (var prop in this._IPMItem.PC.Properties)
             {
                 if (prop.Value.Data == null)
                     continue;
-                switch(prop.Key)
+                switch (prop.Key)
                 {
                     case 0x17:
-                        this.Imporance = (Importance) BitConverter.ToInt16(prop.Value.Data, 0);
+                        this.Imporance = (Importance)BitConverter.ToInt16(prop.Value.Data, 0);
                         break;
                     case 0x36:
-                        this.Sensitivity = (Sensitivity) BitConverter.ToInt16(prop.Value.Data, 0);
+                        this.Sensitivity = (Sensitivity)BitConverter.ToInt16(prop.Value.Data, 0);
                         break;
                     case 0x37:
                         this.Subject = Encoding.Unicode.GetString(prop.Value.Data);
@@ -145,8 +145,8 @@ namespace PSTParse.MessageLayer
                                 int i = 0;
                                 if (length > 1)
                                     i++;
-                                this.SubjectPrefix = this.Subject.Substring(2, length-1);
-                                this.Subject = this.Subject.Substring(2 + length-1);
+                                this.SubjectPrefix = this.Subject.Substring(2, length - 1);
+                                this.Subject = this.Subject.Substring(2 + length - 1);
                             }
                         }
                         break;
@@ -263,7 +263,7 @@ namespace PSTParse.MessageLayer
                         break;
                 }
             }
-            
+
         }
     }
 }

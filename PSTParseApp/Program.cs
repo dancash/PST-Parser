@@ -42,8 +42,11 @@ namespace PSTParseApp
                         totalCount += count;
                         Console.WriteLine(String.Join(" -> ", curFolder.Path) + " ({0} messages)", count);
 
+                        var counter = 0;
                         foreach (var ipmItem in curFolder)
                         {
+                            counter++;
+                            if (counter == 1) continue;
                             if (ipmItem is Message)
                             {
                                 var message = ipmItem as Message;

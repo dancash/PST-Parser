@@ -73,6 +73,7 @@
     <Compile Include="MessageLayer\MailStore.cs" />
     <Compile Include="ListsTablesPropertiesLayer\PropertyContext.cs" />
     <Compile Include="MessageLayer\Message.cs" />
+    <Compile Include="MessageLayer\MessageProperty.cs" />
     <Compile Include="MessageLayer\NamedProperty.cs" />
     <Compile Include="MessageLayer\NamedToPropertyLookup.cs" />
     <Compile Include="MessageLayer\NAMEID.cs" />
