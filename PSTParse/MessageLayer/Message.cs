@@ -43,6 +43,7 @@ namespace PSTParse.MessageLayer
         public string ConversationTopic;
         public string SenderName { get; set; }
         public string SenderAddress { get; set; }
+        public string SenderAddressType { get; set; }
         public DateTime MessageDeliveryTime;
         public Boolean Read;
         public Boolean Unsent;
@@ -96,10 +97,10 @@ namespace PSTParse.MessageLayer
                     case NodeDatabaseLayer.NID.NodeType.ATTACHMENT_PC:
                         AttachmentPC = new PropertyContext(subNode.Value);
 
-                        var displayName = Encoding.Unicode.GetString(AttachmentPC.Properties[MessageProperty.DisplayName].Data);
-                        var shortName = Encoding.Unicode.GetString(AttachmentPC.Properties[MessageProperty.AttachmentFileName].Data);
-                        var longName = Encoding.Unicode.GetString(AttachmentPC.Properties[MessageProperty.AttachmentLongFileName].Data);
-                        Debug.Assert(displayName == longName);
+                        //var displayName = Encoding.Unicode.GetString(AttachmentPC.Properties[MessageProperty.DisplayName].Data);
+                        //var shortName = Encoding.Unicode.GetString(AttachmentPC.Properties[MessageProperty.AttachmentFileName].Data);
+                        //var longName = Encoding.Unicode.GetString(AttachmentPC.Properties[MessageProperty.AttachmentLongFileName].Data);
+                        //Debug.Assert(displayName == longName);
                         var attachment = new Attachment(AttachmentPC);
                         Attachments.Add(attachment);
                         break;
@@ -170,6 +171,9 @@ namespace PSTParse.MessageLayer
                         break;
                     case MessageProperty.SenderAddress:
                         SenderAddress = Encoding.Unicode.GetString(prop.Value.Data);
+                        break;
+                    case MessageProperty.SenderAddressType:
+                        SenderAddressType = Encoding.Unicode.GetString(prop.Value.Data);
                         break;
                     case MessageProperty.SenderName:
                         SenderName = Encoding.Unicode.GetString(prop.Value.Data);

@@ -20,7 +20,8 @@ namespace PSTParse.MessageLayer
         public uint Size { get; set; }
         public uint RenderingPosition { get; set; }
         public string Filename { get; set; }
-        public string AttachmentLongFileName { get; set; }
+        public string AttachmentLongFileName { get; set; } = Guid.NewGuid().ToString();
+        public string DisplayName { get; set; }
         public uint LTPRowID { get; set; }
         public uint LTPRowVer { get; set; }
         public bool InvisibleInHTML { get; set; }
@@ -32,88 +33,90 @@ namespace PSTParse.MessageLayer
         {
             foreach (var property in propertyContext.Properties)
             {
-                    switch (property.Key)
-                    {
+                switch (property.Key)
+                {
                     case MessageProperty.AttachmentData:
                         this.Data = property.Value.Data;
                         break;
                     case MessageProperty.AttachmentSize:
-                            this.Size = BitConverter.ToUInt32(property.Value.Data, 0);
-                            break;
-                        case MessageProperty.AttachmentFileName:
-                            if (property.Value.Data != null)
-                                Filename = Encoding.Unicode.GetString(property.Value.Data);
-                            break;
-                        //case MessageProperty.DisplayName:
-                        case MessageProperty.AttachmentLongFileName:
-                            if (property.Value.Data != null)
-                                AttachmentLongFileName = Encoding.Unicode.GetString(property.Value.Data);
-                            break;
-                        case MessageProperty.AttachmentMethod:
-                            Method = (AttachmentMethod)BitConverter.ToUInt32(property.Value.Data, 0);
-                            break;
-                        case MessageProperty.AttachmentRenderPosition:
-                            RenderingPosition = BitConverter.ToUInt32(property.Value.Data, 0);
-                            break;
-                        case MessageProperty.AttachmentFlags:
-                            var flags = BitConverter.ToUInt32(property.Value.Data, 0);
-                            InvisibleInHTML = (flags & 0x1) != 0;
-                            InvisibleInRTF = (flags & 0x02) != 0;
-                            RenderedInBody = (flags & 0x04) != 0;
-                            break;
-                        case MessageProperty.AttachmentLTPRowID:
-                            LTPRowID = BitConverter.ToUInt32(property.Value.Data, 0);
-                            break;
-                        case MessageProperty.AttachmentLTPRowVer:
-                            LTPRowVer = BitConverter.ToUInt32(property.Value.Data, 0);
-                            break;
-                        default:
-                            break;
-                    }
-
-            }
-        }
-
-        public Attachment(TCRowMatrixData row)
-        {
-            foreach (var exProp in row)
-            {
-                switch (exProp.ID)
-                {
-                    case MessageProperty.AttachmentSize:
-                        this.Size = BitConverter.ToUInt32(exProp.Data, 0);
+                        this.Size = BitConverter.ToUInt32(property.Value.Data, 0);
                         break;
                     case MessageProperty.AttachmentFileName:
-                        if (exProp.Data != null)
-                            Filename = Encoding.Unicode.GetString(exProp.Data);
+                        if (property.Value.Data != null)
+                            Filename = Encoding.Unicode.GetString(property.Value.Data);
                         break;
                     case MessageProperty.DisplayName:
+                        DisplayName = Encoding.Unicode.GetString(property.Value.Data);
+                        break;
                     case MessageProperty.AttachmentLongFileName:
-                        if (exProp.Data != null)
-                            AttachmentLongFileName = Encoding.Unicode.GetString(exProp.Data);
+                        if (property.Value.Data != null)
+                            AttachmentLongFileName = Encoding.Unicode.GetString(property.Value.Data);
                         break;
                     case MessageProperty.AttachmentMethod:
-                        Method = (AttachmentMethod)BitConverter.ToUInt32(exProp.Data, 0);
+                        Method = (AttachmentMethod)BitConverter.ToUInt32(property.Value.Data, 0);
                         break;
                     case MessageProperty.AttachmentRenderPosition:
-                        RenderingPosition = BitConverter.ToUInt32(exProp.Data, 0);
+                        RenderingPosition = BitConverter.ToUInt32(property.Value.Data, 0);
                         break;
                     case MessageProperty.AttachmentFlags:
-                        var flags = BitConverter.ToUInt32(exProp.Data, 0);
+                        var flags = BitConverter.ToUInt32(property.Value.Data, 0);
                         InvisibleInHTML = (flags & 0x1) != 0;
                         InvisibleInRTF = (flags & 0x02) != 0;
                         RenderedInBody = (flags & 0x04) != 0;
                         break;
                     case MessageProperty.AttachmentLTPRowID:
-                        LTPRowID = BitConverter.ToUInt32(exProp.Data, 0);
+                        LTPRowID = BitConverter.ToUInt32(property.Value.Data, 0);
                         break;
                     case MessageProperty.AttachmentLTPRowVer:
-                        LTPRowVer = BitConverter.ToUInt32(exProp.Data, 0);
+                        LTPRowVer = BitConverter.ToUInt32(property.Value.Data, 0);
                         break;
                     default:
                         break;
                 }
+
             }
         }
+
+        //public Attachment(TCRowMatrixData row)
+        //{
+        //    foreach (var exProp in row)
+        //    {
+        //        switch (exProp.ID)
+        //        {
+        //            case MessageProperty.AttachmentSize:
+        //                this.Size = BitConverter.ToUInt32(exProp.Data, 0);
+        //                break;
+        //            case MessageProperty.AttachmentFileName:
+        //                if (exProp.Data != null)
+        //                    Filename = Encoding.Unicode.GetString(exProp.Data);
+        //                break;
+        //            case MessageProperty.DisplayName:
+        //            case MessageProperty.AttachmentLongFileName:
+        //                if (exProp.Data != null)
+        //                    AttachmentLongFileName = Encoding.Unicode.GetString(exProp.Data);
+        //                break;
+        //            case MessageProperty.AttachmentMethod:
+        //                Method = (AttachmentMethod)BitConverter.ToUInt32(exProp.Data, 0);
+        //                break;
+        //            case MessageProperty.AttachmentRenderPosition:
+        //                RenderingPosition = BitConverter.ToUInt32(exProp.Data, 0);
+        //                break;
+        //            case MessageProperty.AttachmentFlags:
+        //                var flags = BitConverter.ToUInt32(exProp.Data, 0);
+        //                InvisibleInHTML = (flags & 0x1) != 0;
+        //                InvisibleInRTF = (flags & 0x02) != 0;
+        //                RenderedInBody = (flags & 0x04) != 0;
+        //                break;
+        //            case MessageProperty.AttachmentLTPRowID:
+        //                LTPRowID = BitConverter.ToUInt32(exProp.Data, 0);
+        //                break;
+        //            case MessageProperty.AttachmentLTPRowVer:
+        //                LTPRowVer = BitConverter.ToUInt32(exProp.Data, 0);
+        //                break;
+        //            default:
+        //                break;
+        //        }
+        //    }
+        //}
     }
 }

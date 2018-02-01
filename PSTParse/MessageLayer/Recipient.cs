@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using PSTParse.ListsTablesPropertiesLayer;
@@ -29,31 +28,32 @@ namespace PSTParse.MessageLayer
         {
             foreach (var exProp in row)
             {
+                var data = exProp.Data ?? new byte[0];
                 switch (exProp.ID)
                 {
                     case MessageProperty.RecipientType:
-                        this.Type = (RecipientType)BitConverter.ToUInt32(exProp.Data, 0);
+                        Type = (RecipientType)BitConverter.ToUInt32(data, 0);
                         break;
                     case MessageProperty.RecipientResponsibility:
-                        this.Responsibility = exProp.Data[0] == 0x01;
+                        Responsibility = data.Any() ? data[0] == 0x01 : false;
                         break;
                     case MessageProperty.RecordKey:
-                        this.Tag = exProp.Data;
+                        Tag = data;
                         break;
                     case MessageProperty.RecipientObjType:
-                        this.ObjType = (PSTEnums.ObjectType)BitConverter.ToUInt32(exProp.Data, 0);
+                        ObjType = (PSTEnums.ObjectType)BitConverter.ToUInt32(data, 0);
                         break;
                     case MessageProperty.RecipientEntryID:
-                        this.EntryID = new EntryID(exProp.Data);
+                        EntryID = new EntryID(data);
                         break;
                     case MessageProperty.DisplayName:
-                        this.DisplayName = Encoding.Unicode.GetString(exProp.Data);
+                        DisplayName = Encoding.Unicode.GetString(data);
                         break;
                     case MessageProperty.AddressType:
-                        this.EmailAddressType = Encoding.Unicode.GetString(exProp.Data);
+                        EmailAddressType = Encoding.Unicode.GetString(data);
                         break;
                     case MessageProperty.AddressName:
-                        this.EmailAddress = Encoding.Unicode.GetString(exProp.Data);
+                        EmailAddress = Encoding.Unicode.GetString(data);
                         break;
                     default:
                         break;
