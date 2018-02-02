@@ -54,10 +54,11 @@ namespace PSTParse.MessageLayer
         public Boolean NotifyUnreadRequested;
         public Boolean EverRead;
         public UInt32 MessageSize;
+        public string Headers { get; set; }
         public string BodyPlainText { get; set; }
         public string BodyHtml { get; set; }
         public UInt32 InternetArticleNumber;
-        public byte[] BodyCompressedRTF;
+        public string BodyCompressedRTFString { get; set; }
         public string InternetMessageID;
         public string UrlCompositeName;
         public bool AttributeHidden;
@@ -214,14 +215,18 @@ namespace PSTParse.MessageLayer
                     case MessageProperty.TrustedSender:
                         //trusted sender
                         break;
+                    case MessageProperty.Headers:
+                        Headers = Encoding.Unicode.GetString(prop.Value.Data);
+                        break;
                     case MessageProperty.BodyPlainText:
                         BodyPlainText = Encoding.Unicode.GetString(prop.Value.Data);
                         break;
                     case MessageProperty.BodyCompressedRTF:
-                        BodyCompressedRTF = prop.Value.Data.RangeSubset(4, prop.Value.Data.Length - 4);
+                        BodyCompressedRTFString = new RtfDecompressor().Decompress(prop.Value.Data);
                         break;
                     case MessageProperty.BodyHtml:
-                        BodyHtml = Encoding.Unicode.GetString(prop.Value.Data);
+                        //var temp = MessagePropertyTypes.PropertyToString(true, prop.Value);
+                        BodyHtml = Encoding.ASCII.GetString(prop.Value.Data);
                         break;
                     case MessageProperty.MessageID:
                         InternetMessageID = Encoding.Unicode.GetString(prop.Value.Data);

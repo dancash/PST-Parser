@@ -118,6 +118,7 @@
     <Compile Include="PSTParser.cs" />
     <Compile Include="Utilities\ArrayUtilities.cs" />
     <Compile Include="Utilities\CRC32.cs" />
+    <Compile Include="Utilities\RtfDecompressor.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

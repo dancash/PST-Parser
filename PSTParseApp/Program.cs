@@ -63,7 +63,8 @@ namespace PSTParseApp
             var sw = new Stopwatch();
             sw.Start();
             //var pstPath = @"C:\temp\pstCreation\sharp_test.pst";
-            var pstPath = @"C:\temp\pstCreation\Leann.pst";
+            //var pstPath = @"C:\temp\pstCreation\Leann.pst";
+            var pstPath = @"C:\temp\pstCreation\sharp_test_single.pst";
 
             var logPath = @"C:\temp\pstCreation\outTest.log";
             var pstSize = new FileInfo(pstPath).Length * 1.0 / 1024 / 1024;

@@ -1,9 +1,6 @@
-﻿using PSTParse.MessageLayer;
-using PSTParse.Utilities;
+﻿using PSTParse.Utilities;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace PSTParse.ListsTablesPropertiesLayer
 {
@@ -15,16 +12,16 @@ namespace PSTParse.ListsTablesPropertiesLayer
 
         public PCBTHRecord(byte[] bytes)
         {
-            this.PropID = BitConverter.ToUInt16(bytes.Take(2).ToArray(), 0);
-            this.PropType = BitConverter.ToUInt16(bytes.Skip(2).Take(2).ToArray(), 0);
-            var prop= this.PropertyValue = ExchangeProperty.PropertyLookupByTypeID[(MessageProperty)PropType];
+            PropID = BitConverter.ToUInt16(bytes.Take(2).ToArray(), 0);
+            PropType = BitConverter.ToUInt16(bytes.Skip(2).Take(2).ToArray(), 0);
+            var prop= PropertyValue = ExchangeProperty.PropertyLookupByTypeID[(ExchangeProperty.PropType)PropType];
             if (!prop.MultiValue)
             {
                 if (!prop.Variable)
                 {
                     if (prop.ByteCount <= 4 && prop.ByteCount != 0)
                     {
-                        this.PropertyValue.Data = bytes.RangeSubset(4, (int) prop.ByteCount);
+                        PropertyValue.Data = bytes.RangeSubset(4, (int) prop.ByteCount);
                     }
                     else
                     {
@@ -32,7 +29,7 @@ namespace PSTParse.ListsTablesPropertiesLayer
                     }
                 }
             }
-            //this.HNID = new HNID(bytes.Skip(4).ToArray());
+            //HNID = new HNID(bytes.Skip(4).ToArray());
         }
     }
 }

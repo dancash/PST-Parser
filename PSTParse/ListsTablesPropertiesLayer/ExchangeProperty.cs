@@ -44,44 +44,44 @@ namespace PSTParse.ListsTablesPropertiesLayer
             MultipleBinary = 0x1102,
         }
 
-        public static Dictionary<MessageProperty, ExchangeProperty>
+        public static Dictionary<PropType, ExchangeProperty>
             PropertyLookupByTypeID = new Dictionary
-                <MessageProperty, ExchangeProperty>
+                <PropType, ExchangeProperty>
                                          {
-                                             {(MessageProperty)0x0002,new ExchangeProperty{ByteCount = 2,Type =  (MessageProperty)0x0002,MultiValue = false, Variable = false}},
-                                             {(MessageProperty)0x0003,new ExchangeProperty{ByteCount = 4,Type =  (MessageProperty)0x0003,MultiValue = false, Variable = false}},
-                                             {(MessageProperty)0x0004,new ExchangeProperty{ByteCount = 4,Type =  (MessageProperty)0x0004,MultiValue = false, Variable = false}},
-                                             {(MessageProperty)0x0005,new ExchangeProperty{ByteCount = 8,Type =  (MessageProperty)0x0005,MultiValue = false, Variable = false}},
-                                             {(MessageProperty)0x0006,new ExchangeProperty{ByteCount = 8,Type =  (MessageProperty)0x0006,MultiValue = false, Variable = false}},
-                                             {(MessageProperty)0x0007,new ExchangeProperty{ByteCount = 8,Type =  (MessageProperty)0x0007,MultiValue = false, Variable = false}},
-                                             {(MessageProperty)0x000A,new ExchangeProperty{ByteCount = 4,Type =  (MessageProperty)0x000A,MultiValue = false, Variable = false}},
-                                             {(MessageProperty)0x000B,new ExchangeProperty{ByteCount = 1,Type =  (MessageProperty)0x000B,MultiValue = false, Variable = false}},
-                                             {(MessageProperty)0x0014,new ExchangeProperty{ByteCount = 8,Type =  (MessageProperty)0x0014,MultiValue = false, Variable = false}},
-                                             {(MessageProperty)0x001F,new ExchangeProperty{ByteCount = 0,Type =  (MessageProperty)0x001F,MultiValue = true, Variable = true}},
-                                             {(MessageProperty)0x001E,new ExchangeProperty{ByteCount = 0,Type =  (MessageProperty)0x001E,MultiValue = true, Variable = true}},
-                                             {(MessageProperty)0x0040,new ExchangeProperty{ByteCount = 8,Type =  (MessageProperty)0x0040,MultiValue = false, Variable = false}},
-                                             {(MessageProperty)0x0048,new ExchangeProperty{ByteCount = 16,Type = (MessageProperty)0x0048,MultiValue = false, Variable = false}},
-                                             {(MessageProperty)0x00FB,new ExchangeProperty{ByteCount = 0,Type =  (MessageProperty)0x00FB,MultiValue = false, Variable = true}},
-                                             {(MessageProperty)0x00FD,new ExchangeProperty{ByteCount = 0,Type =  (MessageProperty)0x00FD,MultiValue = false, Variable = true}},
-                                             {(MessageProperty)0x00FE,new ExchangeProperty{ByteCount = 0,Type =  (MessageProperty)0x00FE,MultiValue = true, Variable = true}},
-                                             {(MessageProperty)0x0102,new ExchangeProperty{ByteCount = 1,Type =  (MessageProperty)0x0102,MultiValue = true, Variable = false}},
-                                             {(MessageProperty)0x1002,new ExchangeProperty{ByteCount = 2,Type =  (MessageProperty)0x1002,MultiValue = true, Variable = false}},
-                                             {(MessageProperty)0x1003,new ExchangeProperty{ByteCount = 4,Type =  (MessageProperty)0x1003,MultiValue = true, Variable = false}},
-                                             {(MessageProperty)0x1004,new ExchangeProperty{ByteCount = 4,Type =  (MessageProperty)0x1004,MultiValue = true, Variable = false}},
-                                             {(MessageProperty)0x1005,new ExchangeProperty{ByteCount = 8,Type =  (MessageProperty)0x1005,MultiValue = true, Variable = false}},
-                                             {(MessageProperty)0x1006,new ExchangeProperty{ByteCount = 8,Type =  (MessageProperty)0x1006,MultiValue = true, Variable = false}},
-                                             {(MessageProperty)0x1007,new ExchangeProperty{ByteCount = 8,Type =  (MessageProperty)0x1007,MultiValue = true, Variable = false}},
-                                             {(MessageProperty)0x1014,new ExchangeProperty{ByteCount = 8,Type =  (MessageProperty)0x1014,MultiValue = true, Variable = false}},
-                                             {(MessageProperty)0x101F,new ExchangeProperty{ByteCount = 0,Type =  (MessageProperty)0x101F,MultiValue = true, Variable = true}},
-                                             {(MessageProperty)0x101E,new ExchangeProperty{ByteCount = 0,Type =  (MessageProperty)0x101E,MultiValue = true, Variable = true}},
-                                             {(MessageProperty)0x1040,new ExchangeProperty{ByteCount = 8,Type =  (MessageProperty)0x1040,MultiValue = true, Variable = false}},
-                                             {(MessageProperty)0x1048,new ExchangeProperty{ByteCount = 8,Type =  (MessageProperty)0x1048,MultiValue = true, Variable = false}},
-                                             {(MessageProperty)0x1102,new ExchangeProperty{ByteCount = 0,Type =  (MessageProperty)0x1102,MultiValue = true, Variable = true}},
+                                             {(PropType)0x0002,new ExchangeProperty{ByteCount = 2,Type =  (PropType)0x0002,MultiValue = false, Variable = false}},
+                                             {(PropType)0x0003,new ExchangeProperty{ByteCount = 4,Type =  (PropType)0x0003,MultiValue = false, Variable = false}},
+                                             {(PropType)0x0004,new ExchangeProperty{ByteCount = 4,Type =  (PropType)0x0004,MultiValue = false, Variable = false}},
+                                             {(PropType)0x0005,new ExchangeProperty{ByteCount = 8,Type =  (PropType)0x0005,MultiValue = false, Variable = false}},
+                                             {(PropType)0x0006,new ExchangeProperty{ByteCount = 8,Type =  (PropType)0x0006,MultiValue = false, Variable = false}},
+                                             {(PropType)0x0007,new ExchangeProperty{ByteCount = 8,Type =  (PropType)0x0007,MultiValue = false, Variable = false}},
+                                             {(PropType)0x000A,new ExchangeProperty{ByteCount = 4,Type =  (PropType)0x000A,MultiValue = false, Variable = false}},
+                                             {(PropType)0x000B,new ExchangeProperty{ByteCount = 1,Type =  (PropType)0x000B,MultiValue = false, Variable = false}},
+                                             {(PropType)0x0014,new ExchangeProperty{ByteCount = 8,Type =  (PropType)0x0014,MultiValue = false, Variable = false}},
+                                             {(PropType)0x001F,new ExchangeProperty{ByteCount = 0,Type =  (PropType)0x001F,MultiValue = true, Variable = true}},
+                                             {(PropType)0x001E,new ExchangeProperty{ByteCount = 0,Type =  (PropType)0x001E,MultiValue = true, Variable = true}},
+                                             {(PropType)0x0040,new ExchangeProperty{ByteCount = 8,Type =  (PropType)0x0040,MultiValue = false, Variable = false}},
+                                             {(PropType)0x0048,new ExchangeProperty{ByteCount = 16,Type = (PropType)0x0048,MultiValue = false, Variable = false}},
+                                             {(PropType)0x00FB,new ExchangeProperty{ByteCount = 0,Type =  (PropType)0x00FB,MultiValue = false, Variable = true}},
+                                             {(PropType)0x00FD,new ExchangeProperty{ByteCount = 0,Type =  (PropType)0x00FD,MultiValue = false, Variable = true}},
+                                             {(PropType)0x00FE,new ExchangeProperty{ByteCount = 0,Type =  (PropType)0x00FE,MultiValue = true, Variable = true}},
+                                             {(PropType)0x0102,new ExchangeProperty{ByteCount = 1,Type =  (PropType)0x0102,MultiValue = true, Variable = false}},
+                                             {(PropType)0x1002,new ExchangeProperty{ByteCount = 2,Type =  (PropType)0x1002,MultiValue = true, Variable = false}},
+                                             {(PropType)0x1003,new ExchangeProperty{ByteCount = 4,Type =  (PropType)0x1003,MultiValue = true, Variable = false}},
+                                             {(PropType)0x1004,new ExchangeProperty{ByteCount = 4,Type =  (PropType)0x1004,MultiValue = true, Variable = false}},
+                                             {(PropType)0x1005,new ExchangeProperty{ByteCount = 8,Type =  (PropType)0x1005,MultiValue = true, Variable = false}},
+                                             {(PropType)0x1006,new ExchangeProperty{ByteCount = 8,Type =  (PropType)0x1006,MultiValue = true, Variable = false}},
+                                             {(PropType)0x1007,new ExchangeProperty{ByteCount = 8,Type =  (PropType)0x1007,MultiValue = true, Variable = false}},
+                                             {(PropType)0x1014,new ExchangeProperty{ByteCount = 8,Type =  (PropType)0x1014,MultiValue = true, Variable = false}},
+                                             {(PropType)0x101F,new ExchangeProperty{ByteCount = 0,Type =  (PropType)0x101F,MultiValue = true, Variable = true}},
+                                             {(PropType)0x101E,new ExchangeProperty{ByteCount = 0,Type =  (PropType)0x101E,MultiValue = true, Variable = true}},
+                                             {(PropType)0x1040,new ExchangeProperty{ByteCount = 8,Type =  (PropType)0x1040,MultiValue = true, Variable = false}},
+                                             {(PropType)0x1048,new ExchangeProperty{ByteCount = 8,Type =  (PropType)0x1048,MultiValue = true, Variable = false}},
+                                             {(PropType)0x1102,new ExchangeProperty{ByteCount = 0,Type =  (PropType)0x1102,MultiValue = true, Variable = true}},
                                              //{0x1102,new ExchangeProperty{ByteCount = 0,Type = 0x1102,MultiValue = true, Variable = true}}
                                          };
 
         public MessageProperty ID { get; set; }
-        public MessageProperty Type { get; set; }
+        public PropType Type { get; set; }
         public bool MultiValue { get; set; }
         public bool Variable { get; set; }
         public uint ByteCount { get; set; }
@@ -95,7 +95,7 @@ namespace PSTParse.ListsTablesPropertiesLayer
         public ExchangeProperty(UInt16 ID, UInt16 type, BTH heap, byte[] key)
         {
             this.ID = (MessageProperty)ID;
-            this.Type = (MessageProperty)type;
+            this.Type = (PropType)type;
             /*var tempKey = new byte[key.Length + 2];
             tempKey[0] = 0x00;
             tempKey[1] = 0x00;
@@ -112,7 +112,7 @@ namespace PSTParse.ListsTablesPropertiesLayer
 
             _key = entry.Data.RangeSubset(2, entry.Data.Length - 2);
             ID = (MessageProperty)BitConverter.ToUInt16(entry.Key, 0);
-            Type = (MessageProperty)BitConverter.ToUInt16(entry.Data, 0);
+            Type = (PropType)BitConverter.ToUInt16(entry.Data, 0);
 
             GetData(heap);
         }
