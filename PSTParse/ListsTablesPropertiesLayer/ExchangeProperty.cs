@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using PSTParse.MessageLayer;
 using PSTParse.NodeDatabaseLayer;
 using PSTParse.Utilities;
@@ -10,6 +8,42 @@ namespace PSTParse.ListsTablesPropertiesLayer
 {
     public class ExchangeProperty
     {
+        public enum PropType : uint
+        {
+            Unspecified = 0x0000,
+            NullType = 0x0001,
+            Integer16 = 0x0002,
+            Integer32 = 0x0003,
+            Floating32 = 0x0004,
+            Floating64 = 0x0005,
+            Currency = 0x0006,
+            FloatingTime = 0x0007,
+            ErrorCode = 0x000A,
+            Boolean = 0x000B,
+            ObjectType = 0x000D,
+            Integer64 = 0x0014,
+            String = 0x001F,
+            String8 = 0x001E,
+            Time = 0x0040,
+            Guid = 0x0048,
+            ServerId = 0x00FB,
+            Restriction = 0x00FD,
+            RuleAction = 0x00FE,
+            Binary = 0x0102,
+            MultipleInteger16 = 0x1002,
+            MultipleInteger32 = 0x1003,
+            MultipleFloating32 = 0x1004,
+            MultipleFloating64 = 0x1005,
+            MultipleCurrency = 0x1006,
+            MultipleFloatingTime = 0x1007,
+            MultipleInteger64 = 0x1014,
+            MultipleString = 0x101F,
+            MultipleString8 = 0x101E,
+            MultipleTime = 0x1040,
+            MultipleGuid = 0x1048,
+            MultipleBinary = 0x1102,
+        }
+
         public static Dictionary<MessageProperty, ExchangeProperty>
             PropertyLookupByTypeID = new Dictionary
                 <MessageProperty, ExchangeProperty>

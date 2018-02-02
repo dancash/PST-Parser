@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Text;
 using PSTParse.ListsTablesPropertiesLayer;
 using PSTParse.NodeDatabaseLayer;
@@ -55,7 +54,8 @@ namespace PSTParse.MessageLayer
         public Boolean NotifyUnreadRequested;
         public Boolean EverRead;
         public UInt32 MessageSize;
-        public string BodyPlainText;
+        public string BodyPlainText { get; set; }
+        public string BodyHtml { get; set; }
         public UInt32 InternetArticleNumber;
         public byte[] BodyCompressedRTF;
         public string InternetMessageID;
@@ -78,13 +78,14 @@ namespace PSTParse.MessageLayer
 
         public List<Attachment> Attachments { get; set; } = new List<Attachment>();
 
-        public Message(uint NID, IPMItem item, PSTFile pst)
+        public Message(uint nid, IPMItem item, PSTFile pst)
         {
             _IPMItem = item;
-            Data = BlockBO.GetNodeData(NID, pst);
-            NID = NID;
+            Data = BlockBO.GetNodeData(nid, pst);
+            NID = nid;
             //MessagePC = new PropertyContext(Data);
-            int attachmentPcIndex = 0;
+            //int attachmentPcIndex = 0;
+            var attachmentSet = new HashSet<string>();
 
             foreach (var subNode in Data.SubNodeData)
             {
@@ -96,12 +97,13 @@ namespace PSTParse.MessageLayer
                         break;
                     case NodeDatabaseLayer.NID.NodeType.ATTACHMENT_PC:
                         AttachmentPC = new PropertyContext(subNode.Value);
-
-                        //var displayName = Encoding.Unicode.GetString(AttachmentPC.Properties[MessageProperty.DisplayName].Data);
-                        //var shortName = Encoding.Unicode.GetString(AttachmentPC.Properties[MessageProperty.AttachmentFileName].Data);
-                        //var longName = Encoding.Unicode.GetString(AttachmentPC.Properties[MessageProperty.AttachmentLongFileName].Data);
-                        //Debug.Assert(displayName == longName);
                         var attachment = new Attachment(AttachmentPC);
+                        if (attachmentSet.Contains(attachment.AttachmentLongFileName))
+                        {
+                            var smallGuid = Guid.NewGuid().ToString().Substring(0, 5);
+                            attachment.AttachmentLongFileName = $"{smallGuid}-{attachment.AttachmentLongFileName}";
+                        }
+                        attachmentSet.Add(attachment.AttachmentLongFileName);
                         Attachments.Add(attachment);
                         break;
                     case NodeDatabaseLayer.NID.NodeType.RECIPIENT_TABLE:
@@ -133,7 +135,7 @@ namespace PSTParse.MessageLayer
             {
                 if (prop.Value.Data == null)
                     continue;
-                switch ((MessageProperty)prop.Key)
+                switch (prop.Key)
                 {
                     case MessageProperty.Importance:
                         Imporance = (Importance)BitConverter.ToInt16(prop.Value.Data, 0);
@@ -217,6 +219,9 @@ namespace PSTParse.MessageLayer
                         break;
                     case MessageProperty.BodyCompressedRTF:
                         BodyCompressedRTF = prop.Value.Data.RangeSubset(4, prop.Value.Data.Length - 4);
+                        break;
+                    case MessageProperty.BodyHtml:
+                        BodyHtml = Encoding.Unicode.GetString(prop.Value.Data);
                         break;
                     case MessageProperty.MessageID:
                         InternetMessageID = Encoding.Unicode.GetString(prop.Value.Data);
