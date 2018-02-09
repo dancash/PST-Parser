@@ -36,21 +36,28 @@ namespace PSTParse.MessageLayer
                 switch (property.Key)
                 {
                     case MessageProperty.AttachmentData:
-                        this.Data = property.Value.Data;
+                        Data = property.Value.Data;
                         break;
                     case MessageProperty.AttachmentSize:
-                        this.Size = BitConverter.ToUInt32(property.Value.Data, 0);
+                        Size = BitConverter.ToUInt32(property.Value.Data, 0);
                         break;
                     case MessageProperty.AttachmentFileName:
                         if (property.Value.Data != null)
                             Filename = Encoding.Unicode.GetString(property.Value.Data);
+                        else
+                            Filename = Guid.NewGuid().ToString();
                         break;
                     case MessageProperty.DisplayName:
-                        DisplayName = Encoding.Unicode.GetString(property.Value.Data);
+                        if (property.Value.Data != null)
+                            DisplayName = Encoding.Unicode.GetString(property.Value.Data);
+                        else
+                            DisplayName = Guid.NewGuid().ToString();
                         break;
                     case MessageProperty.AttachmentLongFileName:
                         if (property.Value.Data != null)
                             AttachmentLongFileName = Encoding.Unicode.GetString(property.Value.Data);
+                        else
+                            AttachmentLongFileName = Guid.NewGuid().ToString();
                         break;
                     case MessageProperty.AttachmentMethod:
                         Method = (AttachmentMethod)BitConverter.ToUInt32(property.Value.Data, 0);
