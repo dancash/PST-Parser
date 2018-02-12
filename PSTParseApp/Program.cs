@@ -88,15 +88,13 @@ namespace PSTParseApp
                         foreach (var child in curFolder.SubFolders)
                             stack.Push(child);
                         var count = curFolder.ContentsTC.RowIndexBTH.Properties.Count;
-                        totalCount += count;
-                        Console.WriteLine(String.Join(" -> ", curFolder.Path) + " ({0} messages)", count);
+                        Console.WriteLine($"{String.Join(" -> ", curFolder.Path)} ({count} messages)");
 
-                        var counter = 0;
+                        var currentFolderCount = 0;
                         foreach (var ipmItem in curFolder)
                         {
-                            //counter++;
-                            //if (counter == 1) continue;
-
+                            totalCount++;
+                            currentFolderCount++;
                             if (ipmItem is PSTParse.MessageLayer.Message)
                             {
                                 var message = ipmItem as PSTParse.MessageLayer.Message;
