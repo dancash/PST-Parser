@@ -105,11 +105,8 @@ namespace PSTParse.NodeDatabaseLayer
         public static List<BlockDataDTO> GetBBTEntryData(BBTENTRY entry, PSTFile pst)
         {
             if (entry == null)
-            {
-                //todo: add logging that certain data is likely corrupt, but recover what you can
-                throw new InvalidDataException("Failed while parsing BBTEntry, the data block was invalid");
-                //return new List<BlockDataDTO>();
-            }
+                throw new InvalidDataException("Failed while parsing BBTEntry, the data block was invalid, try running a PST repair");
+
             var dataSize = entry.BlockByteCount;
             var blockSize = entry.BlockByteCount + 16;
             if (blockSize % 64 != 0)

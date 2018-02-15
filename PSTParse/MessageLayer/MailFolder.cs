@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using PSTParse.ListsTablesPropertiesLayer;
@@ -42,14 +41,7 @@ namespace PSTParse.MessageLayer
             SubFolders = new List<MailFolder>();
             foreach (var row in HeirachyTC.ReverseRowIndex)
             {
-                try
-                {
-                    SubFolders.Add(new MailFolder(row.Value, Path, pst));
-                }
-                catch (Exception ex)
-                {
-                    //todo: log about failed to add folder
-                }
+                SubFolders.Add(new MailFolder(row.Value, Path, pst));
                 //var temp = row.Key;
                 //var temp2 = row.Value;
                 //SubFolderEntryIDs.Add(row.);
