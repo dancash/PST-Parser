@@ -1,19 +1,25 @@
 ﻿using PSTParse.Utilities;
 using System;
+using System.IO;
 
 namespace PSTParse.ListsTablesPropertiesLayer
 {
     public class EntryID
     {
-        public uint Flags;
-        public byte[] PSTUID;
-        public ulong NID;
+        public uint Flags { get; set; }
+        public byte[] PSTUID { get; set; }
+        public ulong NID { get; set; }
 
         public EntryID(byte[] bytes, int offset = 0)
         {
-            this.Flags = BitConverter.ToUInt32(bytes, offset);
-            this.PSTUID = bytes.RangeSubset(4+offset, 16);
-            this.NID = BitConverter.ToUInt32(bytes, offset + 20);
+            if (bytes.Length == 0)
+            {
+                throw new InvalidDataException("The entry id was invalid, try running a PST repair");
+            }
+
+            Flags = BitConverter.ToUInt32(bytes, offset);
+            PSTUID = bytes.RangeSubset(4+offset, 16);
+            NID = BitConverter.ToUInt32(bytes, offset + 20);
         }
     }
 }
