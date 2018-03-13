@@ -13,51 +13,6 @@ namespace PSTParseApp
 {
     class Program
     {
-        //static void Main(string[] args)
-        //{
-        //    try
-        //    {
-        //        var sender = new Sender(address, null, addressType: MsgKit.Enums.AddressType.Unknown, senderIsCreator: true);
-        //        var subject = "Hello Neverland subject";
-        //        //var repping = new Representing("tinkerbell@neverland.com", "Tinkerbell", AddressType.Ex);
-        //        using (var email = new Email(sender, subject))
-        //        {
-        //            //email.AddNamedProperty("test1", "test2", Guid.NewGuid());
-        //            email.BodyRtf = "something rtf?";
-        //            //email.Recipients.AddCc("crocodile@neverland.com", "The evil ticking crocodile");
-        //            //email.Subject = "This is the subject";
-        //            email.BodyText = "Hello Neverland text";
-        //            email.BodyHtml = "<html><head></head><body><b>Hello Neverland html</b></body></html>";
-        //            email.Importance = MessageImportance.IMPORTANCE_NORMAL;
-        //            email.IconIndex = MessageIconIndex.ReadMail;
-        //            email.SentOn = new DateTime(2015, 02, 05);
-        //            var fileStream = new FileStream(@"C:\Users\u403598\Desktop\temp\tempAreYouSure\testout.png", FileMode.Open);
-        //            email.Attachments.Add(fileStream, "testout1.png");
-        //            //email.Attachments.Add(fileStream, "testout2.png", isInline: true, contentId: Guid.NewGuid().ToString());
-        //            email.InternetMessageId = "123@zxyz";
-        //            email.Save(@"C:\Users\u403598\Desktop\temp\tempAreYouSure\email.msg");
-
-        //            //using (var msg = new MsgReader.Outlook.Storage.Message(@"C:\Users\u403598\Desktop\temp\tempAreYouSure\email.msg"))
-        //            //{
-        //            //    var from = msg.Sender;
-        //            //    var sentOn = msg.SentOn;
-        //            //    var recipientsTo = msg.GetEmailRecipients(Storage.Recipient.RecipientType.To, false, false);
-        //            //    var recipientsCc = msg.GetEmailRecipients(Storage.Recipient.RecipientType.Cc, false, false);
-        //            //    var subjectX = msg.Subject;
-        //            //    var htmlBody = msg.BodyHtml;
-        //            //    // etc...
-        //            //}
-
-        //            // Show the E-mail
-        //            //Process.Start(@"c:\email.msg");
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-
-        //    }
-        //}
-
         static void Main(string[] args)
         {
             var sw = new Stopwatch();
