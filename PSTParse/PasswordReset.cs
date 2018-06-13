@@ -1,5 +1,5 @@
-﻿using PSTParse.LTP;
-using PSTParse.NDB;
+﻿using PSTParse.ListsTablesPropertiesLayer;
+using PSTParse.NodeDatabaseLayer;
 
 namespace PSTParse
 {

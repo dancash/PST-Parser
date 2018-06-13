@@ -1,3 +1,9 @@
+#customs
+db.lock
+storage.ide
+storage.ide-shm
+storage.ide-wal
+
 #OS junk files
 [Tt]humbs.db
 *.DS_Store

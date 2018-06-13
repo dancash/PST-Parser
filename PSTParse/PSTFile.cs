@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.IO.MemoryMappedFiles;
-using PSTParse.Message_Layer;
-using PSTParse.NDB;
+using PSTParse.MessageLayer;
+using PSTParse.NodeDatabaseLayer;
 
 namespace PSTParse
 {

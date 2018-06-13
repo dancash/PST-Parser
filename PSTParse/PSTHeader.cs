@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Text;
-using PSTParse.NDB;
+using PSTParse.NodeDatabaseLayer;
 
 namespace PSTParse
 {
@@ -11,8 +11,8 @@ namespace PSTParse
 
         public bool? IsUNICODE { get { return IsANSI == null ? null : !IsANSI; } }
 
-        public NDB.PSTBTree NodeBT { get; set; }
-        public NDB.PSTBTree BlockBT { get; set; }
+        public NodeDatabaseLayer.PSTBTree NodeBT { get; set; }
+        public NodeDatabaseLayer.PSTBTree BlockBT { get; set; }
 
         public BlockEncoding EncodingAlgotihm;
         public enum BlockEncoding
@@ -53,8 +53,8 @@ namespace PSTParse
                     mmfView.ReadArray(232, bytes, 0, 16);
                     var bbt_bref = new BREF(bytes);
 
-                    this.NodeBT = new NDB.PSTBTree(nbt_bref, pst);
-                    this.BlockBT = new NDB.PSTBTree(bbt_bref, pst);
+                    this.NodeBT = new NodeDatabaseLayer.PSTBTree(nbt_bref, pst);
+                    this.BlockBT = new NodeDatabaseLayer.PSTBTree(bbt_bref, pst);
                 }
             }
         }

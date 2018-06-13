@@ -4,8 +4,10 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using MsgKit;
+using MsgKit.Enums;
 using PSTParse;
-using PSTParse.Message_Layer;
+using PSTParse.MessageLayer;
 
 namespace PSTParseApp
 {
@@ -15,9 +17,12 @@ namespace PSTParseApp
         {
             var sw = new Stopwatch();
             sw.Start();
-            var pstPath = @"C:\test\dtmtcm@gmail.com.pst";
-            var logPath = @"C:\test\nidlog.txt";
-            var pstSize = new FileInfo(pstPath).Length*1.0/1024/1024;
+            //var pstPath = @"C:\temp\pstCreation\sharp_test.pst";
+            //var pstPath = @"C:\temp\pstCreation\Leann.pst";
+            var pstPath = @"C:\temp\pstCreation\sharp_test_single.pst";
+
+            var logPath = @"C:\temp\pstCreation\outTest.log";
+            var pstSize = new FileInfo(pstPath).Length * 1.0 / 1024 / 1024;
             using (var file = new PSTFile(pstPath))
             {
                 Console.WriteLine("Magic value: " + file.Header.DWMagic);
@@ -38,32 +43,42 @@ namespace PSTParseApp
                         foreach (var child in curFolder.SubFolders)
                             stack.Push(child);
                         var count = curFolder.ContentsTC.RowIndexBTH.Properties.Count;
-                        totalCount += count;
-                        Console.WriteLine(String.Join(" -> ", curFolder.Path) + " ({0} messages)", count);
-                    
+                        Console.WriteLine($"{String.Join(" -> ", curFolder.Path)} ({count} messages)");
+
+                        var currentFolderCount = 0;
                         foreach (var ipmItem in curFolder)
                         {
-                            if (ipmItem is Message)
+                            totalCount++;
+                            currentFolderCount++;
+                            if (ipmItem is PSTParse.MessageLayer.Message)
                             {
-                                var message = ipmItem as Message;
-                                Console.WriteLine(message.Subject);
-                                Console.WriteLine(message.Imporance);
-                                Console.WriteLine("Sender Name: " + message.SenderName);
-                                if (message.From.Count > 0)
-                                    Console.WriteLine("From: {0}",
-                                                      String.Join("; ", message.From.Select(r => r.EmailAddress)));
-                                if (message.To.Count > 0)
-                                    Console.WriteLine("To: {0}",
-                                                      String.Join("; ", message.To.Select(r => r.EmailAddress)));
-                                if (message.CC.Count > 0)
-                                    Console.WriteLine("CC: {0}",
-                                                      String.Join("; ", message.CC.Select(r => r.EmailAddress)));
-                                if (message.BCC.Count > 0)
-                                    Console.WriteLine("BCC: {0}",
-                                                      String.Join("; ", message.BCC.Select(r => r.EmailAddress)));
-                                
+                                var message = ipmItem as PSTParse.MessageLayer.Message;
+                                if (string.IsNullOrEmpty(message.SenderAddress)) continue;
 
-                                writer.WriteLine(ByteArrayToString(BitConverter.GetBytes(message.NID)));
+
+                                //foreach (var attachment in message.Attachments)
+                                //{
+                                //    File.WriteAllBytes($@"C:\Users\u403598\Desktop\temp\tempPLEASES\{Guid.NewGuid().ToString().Substring(0, 5)}-{attachment.AttachmentLongFileName}", attachment.Data);
+                                //}
+
+                                //Console.WriteLine(message.Subject);
+                                //Console.WriteLine(message.Imporance);
+                                //Console.WriteLine("Sender Name: " + message.SenderName);
+                                //if (message.From.Count > 0)
+                                //    Console.WriteLine("From: {0}",
+                                //                      String.Join("; ", message.From.Select(r => r.EmailAddress)));
+                                //if (message.To.Count > 0)
+                                //    Console.WriteLine("To: {0}",
+                                //                      String.Join("; ", message.To.Select(r => r.EmailAddress)));
+                                //if (message.CC.Count > 0)
+                                //    Console.WriteLine("CC: {0}",
+                                //                      String.Join("; ", message.CC.Select(r => r.EmailAddress)));
+                                //if (message.BCC.Count > 0)
+                                //    Console.WriteLine("BCC: {0}",
+                                //                      String.Join("; ", message.BCC.Select(r => r.EmailAddress)));
+
+
+                                //writer.WriteLine(ByteArrayToString(BitConverter.GetBytes(message.NID)));
                             }
                         }
                     }
