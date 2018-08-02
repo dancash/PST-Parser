@@ -9,18 +9,31 @@ namespace PSTParse.NodeDatabaseLayer
         public static NodeDataDTO GetNodeData(ulong nid, PSTFile pst)
         {
             var nodeBIDs = pst.GetNodeBIDs(nid);
-            var mainData = BlockBO.GetBBTEntryData(pst.GetBlockBBTEntry(nodeBIDs.Item1), pst);
+            var mainData = GetBBTEntryData(pst.GetBlockBBTEntry(nodeBIDs.Item1), pst);
             var subNodeData = new Dictionary<ulong, NodeDataDTO>();
 
             if (nodeBIDs.Item2 != 0)
-                subNodeData = BlockBO.GetSubNodeData(pst.GetBlockBBTEntry(nodeBIDs.Item2), pst);
+                subNodeData = GetSubNodeData(pst.GetBlockBBTEntry(nodeBIDs.Item2), pst);
 
             return new NodeDataDTO { NodeData = mainData, SubNodeData = subNodeData };
         }
 
+        public static Dictionary<ulong, NodeDataDTO> GetSubNodeData(ulong nid, PSTFile pst)
+        {
+            var nodeBIDs = pst.GetNodeBIDs(nid);
+
+            Dictionary<ulong, NodeDataDTO> subNodeData;
+            if (nodeBIDs.Item2 == 0)
+                subNodeData = new Dictionary<ulong, NodeDataDTO>();
+            else
+                subNodeData = GetSubNodeData(pst.GetBlockBBTEntry(nodeBIDs.Item2), pst);
+
+            return subNodeData;
+        }
+
         private static Dictionary<ulong, NodeDataDTO> GetSubNodeData(BBTENTRY entry, PSTFile pst)
         {
-            var allData = BlockBO.GetBBTEntryData(entry, pst);
+            var allData = GetBBTEntryData(entry, pst);
             var dataBlock = allData[0];
             if (entry.Internal)
             {
@@ -28,11 +41,11 @@ namespace PSTParse.NodeDatabaseLayer
                 var cLevel = dataBlock.Data[1];
                 if (cLevel == 0) //SLBlock, no intermediate
                 {
-                    return BlockBO.GetSLBlockData(new SLBLOCK(dataBlock), pst);
+                    return GetSLBlockData(new SLBLOCK(dataBlock), pst);
                 }
                 else //SIBlock
                 {
-                    return BlockBO.GetSIBlockData(new SIBLOCK(dataBlock), pst);
+                    return GetSIBlockData(new SIBLOCK(dataBlock), pst);
                 }
             }
             else

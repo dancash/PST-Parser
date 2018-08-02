@@ -4,8 +4,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
-using MsgKit;
-using MsgKit.Enums;
 using PSTParse;
 using PSTParse.MessageLayer;
 
@@ -16,18 +14,40 @@ namespace PSTParseApp
         static void Main(string[] args)
         {
             var sw = new Stopwatch();
-            sw.Start();
-            //var pstPath = @"C:\temp\pstCreation\sharp_test.pst";
-            //var pstPath = @"C:\temp\pstCreation\Leann.pst";
-            var pstPath = @"C:\temp\pstCreation\sharp_test_single.pst";
+            var pstPath = @"C:\temp\testPsts\Leann.pst";
+            //var pstPath = @"C:\temp\testPsts\sharp_2_attachments_test.pst";
+            var fileInfo = new FileInfo(pstPath);
+            var pstSizeGigabytes = ((double)fileInfo.Length / 1000 / 1000 / 1000).ToString("0.000");
+            var logPath = @"C:\temp\testPsts\outTest.log";
+            var folderBlacklist = new HashSet<string>
+            {
+                "RSS Feeds",
+                "Recoverable Items",
+                "Outbox",
+                "Calendar",
+                "Junk E-mail",
+                "Drafts",
+                "Conversation History",
+                "Contacts",
+                "Deleted Items",
+                "Sync Issues",
+                "Notes",
+                "ExternalContacts",
+                "Files",
+                "Conversation Action Settings",
+                "Journal",
+                "Suggested Contacts",
+                "Tasks",
+                "Quick Step Settings",
+                "Yammer Root",
+                "News Feed"
+            };
 
-            var logPath = @"C:\temp\pstCreation\outTest.log";
-            var pstSize = new FileInfo(pstPath).Length * 1.0 / 1024 / 1024;
+            sw.Start();
             using (var file = new PSTFile(pstPath))
             {
-                Console.WriteLine("Magic value: " + file.Header.DWMagic);
-                Console.WriteLine("Is Ansi? " + file.Header.IsANSI);
-
+                //Console.WriteLine("Magic value: " + file.Header.DWMagic);
+                //Console.WriteLine("Is Ansi? " + file.Header.IsANSI);
 
                 var stack = new Stack<MailFolder>();
                 stack.Push(file.TopOfPST);
@@ -41,7 +61,10 @@ namespace PSTParseApp
                         var curFolder = stack.Pop();
 
                         foreach (var child in curFolder.SubFolders)
+                        {
+                            if (folderBlacklist.Contains(child.Path[1])) continue;
                             stack.Push(child);
+                        }
                         var count = curFolder.ContentsTC.RowIndexBTH.Properties.Count;
                         Console.WriteLine($"{String.Join(" -> ", curFolder.Path)} ({count} messages)");
 
@@ -50,15 +73,24 @@ namespace PSTParseApp
                         {
                             totalCount++;
                             currentFolderCount++;
-                            if (ipmItem is PSTParse.MessageLayer.Message)
+                            if (ipmItem is Message message)
                             {
-                                var message = ipmItem as PSTParse.MessageLayer.Message;
+                                if (message.MessageClass != "IPM.Note") continue;
+                                //if (!message.IsIPMNote) continue;
+                                //if (!message.IsIPMNote)
+                                //{
+                                //    throw new Exception("err ipm");
+                                //}
                                 if (string.IsNullOrEmpty(message.SenderAddress)) continue;
 
+                                //var recipients = message.Recipients;
+                                //if (!message.HasAttachments) continue;
 
-                                //foreach (var attachment in message.Attachments)
+                                foreach (var attachment in message.AttachmentsLazy)
+                                {
+                                }
+                                //if (message.AttachmentsLazy.Count > 1)
                                 //{
-                                //    File.WriteAllBytes($@"C:\Users\u403598\Desktop\temp\tempPLEASES\{Guid.NewGuid().ToString().Substring(0, 5)}-{attachment.AttachmentLongFileName}", attachment.Data);
                                 //}
 
                                 //Console.WriteLine(message.Subject);
@@ -80,13 +112,17 @@ namespace PSTParseApp
 
                                 //writer.WriteLine(ByteArrayToString(BitConverter.GetBytes(message.NID)));
                             }
+                            else
+                            {
+
+                            }
                         }
                     }
                 }
                 sw.Stop();
+                var elapsedSeconds = sw.ElapsedMilliseconds / 1000;
                 Console.WriteLine("{0} messages total", totalCount);
-                Console.WriteLine("Parsed {0} ({2:0.00} MB) in {1} milliseconds", Path.GetFileName(pstPath),
-                                  sw.ElapsedMilliseconds, pstSize);
+                Console.WriteLine("Parsed {0} ({1} GB) in {2} seconds", Path.GetFileName(pstPath), pstSizeGigabytes, elapsedSeconds);
                 //file.Header.NodeBT.Root.GetOffset(1);
                 Console.Read();
             }

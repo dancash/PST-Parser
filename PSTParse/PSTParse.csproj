@@ -83,6 +83,7 @@
     <Compile Include="MessageLayer\NAMEID.cs" />
     <Compile Include="MessageLayer\PropType.cs" />
     <Compile Include="MessageLayer\Recipient.cs" />
+    <Compile Include="MessageLayer\Recipients.cs" />
     <Compile Include="NodeDatabaseLayer\BBTENTRY.cs" />
     <Compile Include="NodeDatabaseLayer\BID.cs" />
     <Compile Include="NodeDatabaseLayer\BlockBO.cs" />

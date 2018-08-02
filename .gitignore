@@ -3,6 +3,7 @@ db.lock
 storage.ide
 storage.ide-shm
 storage.ide-wal
+.dtbcache
 
 #OS junk files
 [Tt]humbs.db

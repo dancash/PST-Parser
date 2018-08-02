@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace PSTParse.MessageLayer
+﻿namespace PSTParse.MessageLayer
 {
     public enum MessageProperty : uint
     {

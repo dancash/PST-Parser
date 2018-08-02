@@ -24,115 +24,140 @@ namespace PSTParse.MessageLayer
 
     public class Message : IPMItem
     {
-        public uint NID { get; set; }
-        public NodeDataDTO Data;
-        public PropertyContext MessagePC;
+        public uint Nid { get; set; }
+
+        private readonly PSTFile PST;
+
+        public NodeDataDTO Data { get; set; }
+        public PropertyContext MessagePC { get; set; }
         //public TableContext AttachmentTable { get; set; }
-        public TableContext RecipientTable;
-        public PropertyContext AttachmentPC;
-
-        public String Subject;
-        public String SubjectPrefix;
-        public Importance Imporance;
-        public Sensitivity Sensitivity;
-        public DateTime LastSaved;
-
-        public DateTime ClientSubmitTime;
-        public string SentRepresentingName;
-        public string ConversationTopic;
+        //public TableContext RecipientTable { get; set; }
+        //public PropertyContext AttachmentPC { get; set; }
+        public string Subject { get; set; }
+        public string SubjectPrefix { get; set; }
+        public Importance Imporance { get; set; }
+        public Sensitivity Sensitivity { get; set; }
+        public DateTime LastSaved { get; set; }
+        public DateTime ClientSubmitTime { get; set; }
+        public string SentRepresentingName { get; set; }
+        public string ConversationTopic { get; set; }
         public string SenderName { get; set; }
         public string SenderAddress { get; set; }
         public string SenderAddressType { get; set; }
-        public DateTime MessageDeliveryTime;
-        public Boolean Read;
-        public Boolean Unsent;
-        public Boolean Unmodified;
-        public Boolean HasAttachments;
-        public Boolean FromMe;
-        public Boolean IsFAI;
-        public Boolean NotifyReadRequested;
-        public Boolean NotifyUnreadRequested;
-        public Boolean EverRead;
-        public UInt32 MessageSize;
+        public DateTime MessageDeliveryTime { get; set; }
+        public bool Read { get; set; }
+        public bool Unsent { get; set; }
+        public bool Unmodified { get; set; }
+        public bool HasAttachments { get; set; }
+        public bool FromMe { get; set; }
+        public bool IsFAI { get; set; }
+        public bool NotifyReadRequested { get; set; }
+        public bool NotifyUnreadRequested { get; set; }
+        public bool EverRead { get; set; }
+        public uint MessageSize { get; set; }
         public string Headers { get; set; }
         public string BodyPlainText { get; set; }
         public string BodyHtml { get; set; }
-        public UInt32 InternetArticleNumber;
+        public uint InternetArticleNumber { get; set; }
         public string BodyCompressedRTFString { get; set; }
-        public string InternetMessageID;
-        public string UrlCompositeName;
-        public bool AttributeHidden;
-        public bool ReadOnly;
-        public DateTime CreationTime;
-        public DateTime LastModificationTime;
-        public UInt32 CodePage;
-        public String CreatorName;
-        public UInt32 NonUnicodeCodePage;
+        public string InternetMessageID { get; set; }
+        public string UrlCompositeName { get; set; }
+        public bool AttributeHidden { get; set; }
+        public bool ReadOnly { get; set; }
+        public DateTime CreationTime { get; set; }
+        public DateTime LastModificationTime { get; set; }
+        public uint CodePage { get; set; }
+        public String CreatorName { get; set; }
+        public uint NonUnicodeCodePage { get; set; }
+        public uint MessageFlags { get; set; }
+        //public bool IsIPMNote { get; private set; }
+        //public byte[] MessageClassBuffer { get; }
+        public IPMItem IPMItem { get; set; }
 
-        private UInt32 MessageFlags;
-        private IPMItem _IPMItem;
+        private readonly Lazy<Recipients> _recipientsLazy;
+        private readonly Lazy<Dictionary<ulong, NodeDataDTO>> _subNodeDataDtoLazy;
+        private Lazy<List<Attachment>> _attachmentsLazy;
 
-        public List<Recipient> To = new List<Recipient>();
-        public List<Recipient> From = new List<Recipient>();
-        public List<Recipient> CC = new List<Recipient>();
-        public List<Recipient> BCC = new List<Recipient>();
 
-        public List<Attachment> Attachments { get; set; } = new List<Attachment>();
+        public Recipients Recipients => _recipientsLazy.Value;
+        public List<Attachment> AttachmentsLazy => _attachmentsLazy.Value;
 
-        public Message(uint nid, IPMItem item, PSTFile pst)
+        private Recipients GetRecipients()
         {
-            _IPMItem = item;
-            Data = BlockBO.GetNodeData(nid, pst);
-            NID = nid;
-            //MessagePC = new PropertyContext(Data);
-            //int attachmentPcIndex = 0;
-            var attachmentSet = new HashSet<string>();
+            const ulong recipientsFlag = 1682;
+            var subNodeData = _subNodeDataDtoLazy.Value;
+            var recipients = new Recipients();
 
-            foreach (var subNode in Data.SubNodeData)
+            var exists = subNodeData.TryGetValue(recipientsFlag, out NodeDataDTO subNode);
+            if (!exists) return recipients;
+
+            var recipientTable = new TableContext(subNode);
+            foreach (var row in recipientTable.RowMatrix.Rows)
             {
-                var temp = new NID(subNode.Key);
-                switch (temp.Type)
+                var recipient = new Recipient(row);
+                switch (recipient.Type)
                 {
-                    case NodeDatabaseLayer.NID.NodeType.ATTACHMENT_TABLE:
-                        //AttachmentTable = new TableContext(subNode.Value);
+                    case Recipient.RecipientType.TO:
+                        recipients.To.Add(recipient);
                         break;
-                    case NodeDatabaseLayer.NID.NodeType.ATTACHMENT_PC:
-                        AttachmentPC = new PropertyContext(subNode.Value);
-                        var attachment = new Attachment(AttachmentPC);
-                        if (attachmentSet.Contains(attachment.AttachmentLongFileName))
-                        {
-                            var smallGuid = Guid.NewGuid().ToString().Substring(0, 5);
-                            attachment.AttachmentLongFileName = $"{smallGuid}-{attachment.AttachmentLongFileName}";
-                        }
-                        attachmentSet.Add(attachment.AttachmentLongFileName);
-                        Attachments.Add(attachment);
+                    case Recipient.RecipientType.CC:
+                        recipients.CC.Add(recipient);
                         break;
-                    case NodeDatabaseLayer.NID.NodeType.RECIPIENT_TABLE:
-                        RecipientTable = new TableContext(subNode.Value);
-
-                        foreach (var row in RecipientTable.RowMatrix.Rows)
-                        {
-                            var recipient = new Recipient(row);
-                            switch (recipient.Type)
-                            {
-                                case Recipient.RecipientType.TO:
-                                    To.Add(recipient);
-                                    break;
-                                case Recipient.RecipientType.FROM:
-                                    From.Add(recipient);
-                                    break;
-                                case Recipient.RecipientType.CC:
-                                    CC.Add(recipient);
-                                    break;
-                                case Recipient.RecipientType.BCC:
-                                    BCC.Add(recipient);
-                                    break;
-                            }
-                        }
+                    case Recipient.RecipientType.BCC:
+                        recipients.BCC.Add(recipient);
                         break;
                 }
             }
-            foreach (var prop in _IPMItem.PC.Properties)
+            return recipients;
+        }
+
+        private List<Attachment> GetAttachments()
+        {
+            var attachments = new List<Attachment>();
+            if (!HasAttachments) return attachments;
+
+            var data = BlockBO.GetNodeData(Nid, PST);
+            var subNodeData = _subNodeDataDtoLazy.Value;
+            var attachmentSet = new HashSet<string>();
+
+            foreach (var subNode in subNodeData)
+            {
+                var nodeType = NID.GetNodeType(subNode.Key);
+                //if (nodeType == NID.NodeType.ATTACHMENT_TABLE)
+                //{
+                //        var attachmentTable = new TableContext(subNode.Value);
+                //        break;
+                //}
+                if (nodeType != NID.NodeType.ATTACHMENT_PC) continue;
+
+                var attachmentPC = new PropertyContext(subNode.Value);
+                var attachment = new Attachment(attachmentPC);
+                if (attachmentSet.Contains(attachment.AttachmentLongFileName))
+                {
+                    var smallGuid = Guid.NewGuid().ToString().Substring(0, 5);
+                    attachment.AttachmentLongFileName = $"{smallGuid}-{attachment.AttachmentLongFileName}";
+                }
+                attachmentSet.Add(attachment.AttachmentLongFileName);
+                attachments.Add(attachment);
+            }
+            return attachments;
+        }
+
+
+        public Message(uint nid, IPMItem item, PSTFile pst)
+        {
+            IPMItem = item;
+            Nid = nid;
+            PST = pst;
+
+            _attachmentsLazy = new Lazy<List<Attachment>>(GetAttachments);
+            _recipientsLazy = new Lazy<Recipients>(GetRecipients);
+            _subNodeDataDtoLazy = new Lazy<Dictionary<ulong, NodeDataDTO>> (() =>
+            {
+                return BlockBO.GetSubNodeData(Nid, PST);
+            });
+
+            foreach (var prop in IPMItem.PC.Properties)
             {
                 if (prop.Value.Data == null)
                     continue;
@@ -170,7 +195,9 @@ namespace PSTParse.MessageLayer
                         ConversationTopic = Encoding.Unicode.GetString(prop.Value.Data);
                         break;
                     case MessageProperty.MessageClass:
+                        //MessageClassBuffer = prop.Value.Data;
                         MessageClass = Encoding.Unicode.GetString(prop.Value.Data);
+                        //IsIPMNote = prop.Value.Data.Length == 16 && prop.Value.Data[14]== (byte)'e';
                         break;
                     case MessageProperty.SenderAddress:
                         SenderAddress = Encoding.Unicode.GetString(prop.Value.Data);

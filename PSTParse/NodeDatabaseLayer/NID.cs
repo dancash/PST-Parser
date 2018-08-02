@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace PSTParse.NodeDatabaseLayer
+﻿namespace PSTParse.NodeDatabaseLayer
 {
     public class NID
     {
@@ -34,11 +29,6 @@ namespace PSTParse.NodeDatabaseLayer
             SEARCH_TABLE_INDEX = 0X13,
             LTP = 0X14
         }
-
-        public NodeType Type;
-        public NID(ulong nid)
-        {
-            this.Type = (NodeType) (nid & 0x1f);
-        }
+        public static NodeType GetNodeType(ulong nid) => (NodeType)(nid & 0x1f);
     }
 }
