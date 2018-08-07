@@ -7,30 +7,32 @@ namespace PSTParse.MessageLayer
 {
     public class MailFolder : IEnumerable<IPMItem>
     {
-        public PropertyContext PC;
-        public TableContext HeirachyTC;
-        public TableContext ContentsTC;
-        public TableContext FaiTC;
+        private readonly PSTFile _pst;
+        private readonly PropertyContext PC;
+        private readonly TableContext HeirachyTC;
+        private readonly TableContext ContentsTC;
+        private readonly TableContext FaiTC;
 
-        public string DisplayName;
-        public List<string> Path;
+        public string DisplayName { get; }
+        public string ContainerClass { get; }
+        public List<string> Path { get; }
+        public List<MailFolder> SubFolders { get; }
+        public int Count => ContentsTC.RowIndexBTH.Properties.Count;
 
-        public List<MailFolder> SubFolders;
-
-        private PSTFile _pst;
-
-        public MailFolder(ulong NID, List<string> path, PSTFile pst)
+        public MailFolder(ulong nid, List<string> path, PSTFile pst)
         {
             _pst = pst;
 
             Path = path;
-            var nid = NID;
             var pcNID = ((nid >> 5) << 5) | 0x02;
             PC = new PropertyContext(pcNID, pst);
             DisplayName = Encoding.Unicode.GetString(PC.Properties[(MessageProperty)0x3001].Data);
 
-            Path = new List<string>(path);
-            Path.Add(DisplayName);
+
+            PC.Properties.TryGetValue((MessageProperty)0x3613, out ExchangeProperty containerClassProperty);
+            ContainerClass = containerClassProperty == null ? "" : Encoding.Unicode.GetString(containerClassProperty.Data);
+
+            Path = new List<string>(path) { DisplayName };
 
             var heirachyNID = ((nid >> 5) << 5) | 0x0D;
             var contentsNID = ((nid >> 5) << 5) | 0x0E;

@@ -76,73 +76,13 @@ namespace PSTParse.MessageLayer
 
         private readonly Lazy<Recipients> _recipientsLazy;
         private readonly Lazy<Dictionary<ulong, NodeDataDTO>> _subNodeDataDtoLazy;
+        private readonly Lazy<bool> _isRmsEncryptedLazy;
         private Lazy<List<Attachment>> _attachmentsLazy;
 
 
         public Recipients Recipients => _recipientsLazy.Value;
         public List<Attachment> AttachmentsLazy => _attachmentsLazy.Value;
-
-        private Recipients GetRecipients()
-        {
-            const ulong recipientsFlag = 1682;
-            var subNodeData = _subNodeDataDtoLazy.Value;
-            var recipients = new Recipients();
-
-            var exists = subNodeData.TryGetValue(recipientsFlag, out NodeDataDTO subNode);
-            if (!exists) return recipients;
-
-            var recipientTable = new TableContext(subNode);
-            foreach (var row in recipientTable.RowMatrix.Rows)
-            {
-                var recipient = new Recipient(row);
-                switch (recipient.Type)
-                {
-                    case Recipient.RecipientType.TO:
-                        recipients.To.Add(recipient);
-                        break;
-                    case Recipient.RecipientType.CC:
-                        recipients.CC.Add(recipient);
-                        break;
-                    case Recipient.RecipientType.BCC:
-                        recipients.BCC.Add(recipient);
-                        break;
-                }
-            }
-            return recipients;
-        }
-
-        private List<Attachment> GetAttachments()
-        {
-            var attachments = new List<Attachment>();
-            if (!HasAttachments) return attachments;
-
-            var data = BlockBO.GetNodeData(Nid, PST);
-            var subNodeData = _subNodeDataDtoLazy.Value;
-            var attachmentSet = new HashSet<string>();
-
-            foreach (var subNode in subNodeData)
-            {
-                var nodeType = NID.GetNodeType(subNode.Key);
-                //if (nodeType == NID.NodeType.ATTACHMENT_TABLE)
-                //{
-                //        var attachmentTable = new TableContext(subNode.Value);
-                //        break;
-                //}
-                if (nodeType != NID.NodeType.ATTACHMENT_PC) continue;
-
-                var attachmentPC = new PropertyContext(subNode.Value);
-                var attachment = new Attachment(attachmentPC);
-                if (attachmentSet.Contains(attachment.AttachmentLongFileName))
-                {
-                    var smallGuid = Guid.NewGuid().ToString().Substring(0, 5);
-                    attachment.AttachmentLongFileName = $"{smallGuid}-{attachment.AttachmentLongFileName}";
-                }
-                attachmentSet.Add(attachment.AttachmentLongFileName);
-                attachments.Add(attachment);
-            }
-            return attachments;
-        }
-
+        public bool IsRMSEncrypted => _isRmsEncryptedLazy.Value;
 
         public Message(uint nid, IPMItem item, PSTFile pst)
         {
@@ -152,10 +92,11 @@ namespace PSTParse.MessageLayer
 
             _attachmentsLazy = new Lazy<List<Attachment>>(GetAttachments);
             _recipientsLazy = new Lazy<Recipients>(GetRecipients);
-            _subNodeDataDtoLazy = new Lazy<Dictionary<ulong, NodeDataDTO>> (() =>
-            {
-                return BlockBO.GetSubNodeData(Nid, PST);
-            });
+            _subNodeDataDtoLazy = new Lazy<Dictionary<ulong, NodeDataDTO>>(() =>
+           {
+               return BlockBO.GetSubNodeData(Nid, PST);
+           });
+            _isRmsEncryptedLazy = new Lazy<bool>(GetIsRMSEncrypted);
 
             foreach (var prop in IPMItem.PC.Properties)
             {
@@ -313,7 +254,91 @@ namespace PSTParse.MessageLayer
                         break;
                 }
             }
+        }
 
+        private Recipients GetRecipients()
+        {
+            const ulong recipientsFlag = 1682;
+            var subNodeData = _subNodeDataDtoLazy.Value;
+            var recipients = new Recipients();
+
+            var exists = subNodeData.TryGetValue(recipientsFlag, out NodeDataDTO subNode);
+            if (!exists) return recipients;
+
+            var recipientTable = new TableContext(subNode);
+            foreach (var row in recipientTable.RowMatrix.Rows)
+            {
+                var recipient = new Recipient(row);
+                switch (recipient.Type)
+                {
+                    case Recipient.RecipientType.TO:
+                        recipients.To.Add(recipient);
+                        break;
+                    case Recipient.RecipientType.CC:
+                        recipients.CC.Add(recipient);
+                        break;
+                    case Recipient.RecipientType.BCC:
+                        recipients.BCC.Add(recipient);
+                        break;
+                }
+            }
+            return recipients;
+        }
+
+        private List<Attachment> GetAttachments()
+        {
+            var attachments = new List<Attachment>();
+            if (!HasAttachments) return attachments;
+
+            var data = BlockBO.GetNodeData(Nid, PST);
+            var subNodeData = _subNodeDataDtoLazy.Value;
+            var attachmentSet = new HashSet<string>();
+
+            foreach (var subNode in subNodeData)
+            {
+                var nodeType = NID.GetNodeType(subNode.Key);
+                //if (nodeType == NID.NodeType.ATTACHMENT_TABLE)
+                //{
+                //        var attachmentTable = new TableContext(subNode.Value);
+                //        break;
+                //}
+                if (nodeType != NID.NodeType.ATTACHMENT_PC) continue;
+
+                var attachmentPC = new PropertyContext(subNode.Value);
+                var attachment = new Attachment(attachmentPC);
+                if (attachmentSet.Contains(attachment.AttachmentLongFileName))
+                {
+                    var smallGuid = Guid.NewGuid().ToString().Substring(0, 5);
+                    attachment.AttachmentLongFileName = $"{smallGuid}-{attachment.AttachmentLongFileName}";
+                }
+                attachmentSet.Add(attachment.AttachmentLongFileName);
+                attachments.Add(attachment);
+            }
+            return attachments;
+        }
+
+        //private bool GetIsRMSEncrypted()
+        //{
+        //    if (BodyHtml != null && BodyPlainText != null) throw new Exception("found body plaintext and body html...");
+        //    var plaintextEncrypted = BodyPlainText?.EndsWith("rms.") ?? false;
+        //    if (plaintextEncrypted && !string.IsNullOrEmpty(BodyHtml)) throw new Exception("expected body html to be null");
+        //    if (BodyHtml != null && BodyHtml.EndsWith("rms.")) throw new Exception("expected body html to be null");
+        //    return plaintextEncrypted;
+        //}
+
+        private bool GetIsRMSEncrypted()
+        {
+            if (!HasAttachments) return false;
+
+            foreach (var attachment in AttachmentsLazy)
+            {
+                if (attachment.AttachmentLongFileName.ToLowerInvariant().EndsWith(".rpmsg"))
+                {
+                    if (AttachmentsLazy.Count > 1) throw new NotSupportedException("too many attachments for rms");
+                    return true;
+                }
+            }
+            return false;
         }
     }
 }

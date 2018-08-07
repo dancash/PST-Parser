@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Text;
 using PSTParse;
 using PSTParse.MessageLayer;
+using static System.Console;
 
 namespace PSTParseApp
 {
@@ -16,32 +16,34 @@ namespace PSTParseApp
             var sw = new Stopwatch();
             var pstPath = @"C:\temp\testPsts\Leann.pst";
             //var pstPath = @"C:\temp\testPsts\sharp_2_attachments_test.pst";
+            //var pstPath = @"C:\temp\testPsts\trg.pst";
             var fileInfo = new FileInfo(pstPath);
             var pstSizeGigabytes = ((double)fileInfo.Length / 1000 / 1000 / 1000).ToString("0.000");
             var logPath = @"C:\temp\testPsts\outTest.log";
-            var folderBlacklist = new HashSet<string>
-            {
-                "RSS Feeds",
-                "Recoverable Items",
-                "Outbox",
-                "Calendar",
-                "Junk E-mail",
-                "Drafts",
-                "Conversation History",
-                "Contacts",
-                "Deleted Items",
-                "Sync Issues",
-                "Notes",
-                "ExternalContacts",
-                "Files",
-                "Conversation Action Settings",
-                "Journal",
-                "Suggested Contacts",
-                "Tasks",
-                "Quick Step Settings",
-                "Yammer Root",
-                "News Feed"
-            };
+            var folderBlacklist = new HashSet<string>();
+            //var folderBlacklist = new HashSet<string>
+            //{
+            //    "RSS Feeds",
+            //    "Recoverable Items",
+            //    "Outbox",
+            //    "Calendar",
+            //    "Junk E-mail",
+            //    "Drafts",
+            //    "Conversation History",
+            //    "Contacts",
+            //    "Deleted Items",
+            //    "Sync Issues",
+            //    "Notes",
+            //    "ExternalContacts",
+            //    "Files",
+            //    "Conversation Action Settings",
+            //    "Journal",
+            //    "Suggested Contacts",
+            //    "Tasks",
+            //    "Quick Step Settings",
+            //    "Yammer Root",
+            //    "News Feed"
+            //};
 
             sw.Start();
             using (var file = new PSTFile(pstPath))
@@ -52,6 +54,8 @@ namespace PSTParseApp
                 var stack = new Stack<MailFolder>();
                 stack.Push(file.TopOfPST);
                 var totalCount = 0;
+                var totalRMSEncryptedCount = 0;
+                var skippedFolders = new List<string>();
                 if (File.Exists(logPath))
                     File.Delete(logPath);
                 using (var writer = new StreamWriter(logPath))
@@ -65,8 +69,15 @@ namespace PSTParseApp
                             if (folderBlacklist.Contains(child.Path[1])) continue;
                             stack.Push(child);
                         }
-                        var count = curFolder.ContentsTC.RowIndexBTH.Properties.Count;
-                        Console.WriteLine($"{String.Join(" -> ", curFolder.Path)} ({count} messages)");
+                        var count = curFolder.Count;
+                        var line = $"{String.Join(" -> ", curFolder.Path)}({curFolder.ContainerClass}) ({count} messages)";
+                        if (curFolder.Path.Count > 1 && curFolder.ContainerClass != "IPF.Note")
+                        {
+                            skippedFolders.Add(line);
+                            continue;
+                            //WriteLine("skipping...");
+                        }
+                        WriteLine(line);
 
                         var currentFolderCount = 0;
                         foreach (var ipmItem in curFolder)
@@ -75,6 +86,10 @@ namespace PSTParseApp
                             currentFolderCount++;
                             if (ipmItem is Message message)
                             {
+                                //if (message.MessageClass.ToLowerInvariant() == "IPM.Post".ToLowerInvariant())
+                                //{
+
+                                //}
                                 if (message.MessageClass != "IPM.Note") continue;
                                 //if (!message.IsIPMNote) continue;
                                 //if (!message.IsIPMNote)
@@ -82,13 +97,33 @@ namespace PSTParseApp
                                 //    throw new Exception("err ipm");
                                 //}
                                 if (string.IsNullOrEmpty(message.SenderAddress)) continue;
+                                if (message.IsRMSEncrypted)
+                                {
+                                    totalRMSEncryptedCount++;
+                                }
 
                                 //var recipients = message.Recipients;
                                 //if (!message.HasAttachments) continue;
 
-                                foreach (var attachment in message.AttachmentsLazy)
-                                {
-                                }
+                                //foreach (var attachment in message.AttachmentsLazy)
+                                //{
+                                //    //if (!message.IsRMSEncrypted && attachment.AttachmentLongFileName.ToLower().EndsWith("rpmsg"))
+                                //    //{
+                                //    //    throw new Exception("False negative, message should be labeled as encrypted");
+                                //    //}
+                                //    //if (message.IsRMSEncrypted && !attachment.AttachmentLongFileName.ToLower().EndsWith("rpmsg"))
+                                //    //{
+                                //    //    throw new Exception("False positive, message should not be labeled as encrypted");
+                                //    //}
+                                //    if (attachment.AttachmentLongFileName.ToLower().EndsWith("rpmsg"))
+                                //    {
+                                //        throw new Exception("False negative, message should be labeled as encrypted");
+                                //    }
+                                //    if (!attachment.AttachmentLongFileName.ToLower().EndsWith("rpmsg"))
+                                //    {
+                                //        throw new Exception("False positive, message should not be labeled as encrypted");
+                                //    }
+                                //}
                                 //if (message.AttachmentsLazy.Count > 1)
                                 //{
                                 //}
@@ -114,17 +149,24 @@ namespace PSTParseApp
                             }
                             else
                             {
-
+                                throw new NotSupportedException();
                             }
                         }
                     }
                 }
                 sw.Stop();
                 var elapsedSeconds = sw.ElapsedMilliseconds / 1000;
-                Console.WriteLine("{0} messages total", totalCount);
-                Console.WriteLine("Parsed {0} ({1} GB) in {2} seconds", Path.GetFileName(pstPath), pstSizeGigabytes, elapsedSeconds);
+                WriteLine("{0} messages total", totalCount);
+                WriteLine("{0} encrypted messages total", totalRMSEncryptedCount);
+                WriteLine("Parsed {0} ({1} GB) in {2} seconds", Path.GetFileName(pstPath), pstSizeGigabytes, elapsedSeconds);
+
+                WriteLine("\r\nSkipped Folders:\r\n");
+                foreach (var line in skippedFolders)
+                {
+                    WriteLine(line);
+                }
                 //file.Header.NodeBT.Root.GetOffset(1);
-                Console.Read();
+                Read();
             }
         }
 
