@@ -42,7 +42,7 @@ namespace PSTParse.Utilities
                 byte[] decompressed = Decompress(bytes, false);
                 return Encoding.ASCII.GetString(decompressed);
             }
-            catch (Exception ex) { }
+            catch (Exception) { }
             return "";
         }
 

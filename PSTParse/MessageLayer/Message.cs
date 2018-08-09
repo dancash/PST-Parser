@@ -7,32 +7,20 @@ using PSTParse.Utilities;
 
 namespace PSTParse.MessageLayer
 {
-    public enum Importance
-    {
-        LOW = 0x00,
-        NORMAL = 0x01,
-        HIGH = 0x02
-    }
-
-    public enum Sensitivity
-    {
-        Normal = 0x00,
-        Personal = 0x01,
-        Private = 0x02,
-        Confidential = 0x03
-    }
-
     public class Message : IPMItem
     {
-        public uint Nid { get; set; }
+        private readonly PSTFile _pst;
+        private readonly ulong _nid;
+        //private readonly NodeDataDTO _data;
+        //private readonly TableContext _attachmentTable;
+        //private readonly TableContext _recipientTable;
+        //private readonly PropertyContext _attachmentPC;
+        //private readonly PropertyContext _messagePC;
+        private readonly Lazy<Recipients> _recipientsLazy;
+        private readonly Lazy<Dictionary<ulong, NodeDataDTO>> _subNodeDataDtoLazy;
+        private readonly Lazy<bool> _isRmsEncryptedLazy;
+        private Lazy<List<Attachment>> _attachmentsLazy;
 
-        private readonly PSTFile PST;
-
-        public NodeDataDTO Data { get; set; }
-        public PropertyContext MessagePC { get; set; }
-        //public TableContext AttachmentTable { get; set; }
-        //public TableContext RecipientTable { get; set; }
-        //public PropertyContext AttachmentPC { get; set; }
         public string Subject { get; set; }
         public string SubjectPrefix { get; set; }
         public Importance Imporance { get; set; }
@@ -70,35 +58,23 @@ namespace PSTParse.MessageLayer
         public String CreatorName { get; set; }
         public uint NonUnicodeCodePage { get; set; }
         public uint MessageFlags { get; set; }
-        //public bool IsIPMNote { get; private set; }
-        //public byte[] MessageClassBuffer { get; }
-        public IPMItem IPMItem { get; set; }
-
-        private readonly Lazy<Recipients> _recipientsLazy;
-        private readonly Lazy<Dictionary<ulong, NodeDataDTO>> _subNodeDataDtoLazy;
-        private readonly Lazy<bool> _isRmsEncryptedLazy;
-        private Lazy<List<Attachment>> _attachmentsLazy;
-
-
         public Recipients Recipients => _recipientsLazy.Value;
         public List<Attachment> AttachmentsLazy => _attachmentsLazy.Value;
         public bool IsRMSEncrypted => _isRmsEncryptedLazy.Value;
 
-        public Message(uint nid, IPMItem item, PSTFile pst)
+        //public Message(PSTFile pst, ulong nid) : this(pst, new PropertyContext(nid, pst)) { }
+
+        public Message(PSTFile pst, PropertyContext propertyContext) : base(pst, propertyContext)
         {
-            IPMItem = item;
-            Nid = nid;
-            PST = pst;
+            _nid = propertyContext.NID;
+            _pst = pst;
 
             _attachmentsLazy = new Lazy<List<Attachment>>(GetAttachments);
             _recipientsLazy = new Lazy<Recipients>(GetRecipients);
-            _subNodeDataDtoLazy = new Lazy<Dictionary<ulong, NodeDataDTO>>(() =>
-           {
-               return BlockBO.GetSubNodeData(Nid, PST);
-           });
+            _subNodeDataDtoLazy = new Lazy<Dictionary<ulong, NodeDataDTO>>(() => BlockBO.GetSubNodeData(_nid, _pst));
             _isRmsEncryptedLazy = new Lazy<bool>(GetIsRMSEncrypted);
 
-            foreach (var prop in IPMItem.PC.Properties)
+            foreach (var prop in PropertyContext.Properties)
             {
                 if (prop.Value.Data == null)
                     continue;
@@ -135,11 +111,13 @@ namespace PSTParse.MessageLayer
                     case MessageProperty.ConversationTopic:
                         ConversationTopic = Encoding.Unicode.GetString(prop.Value.Data);
                         break;
-                    case MessageProperty.MessageClass:
-                        //MessageClassBuffer = prop.Value.Data;
-                        MessageClass = Encoding.Unicode.GetString(prop.Value.Data);
-                        //IsIPMNote = prop.Value.Data.Length == 16 && prop.Value.Data[14]== (byte)'e';
-                        break;
+
+                    //already done in base
+                    //case MessageProperty.MessageClass:
+                    //    //MessageClassBuffer = prop.Value.Data;
+                    //    MessageClass = Encoding.Unicode.GetString(prop.Value.Data);
+                    //    //IsIPMNote = prop.Value.Data.Length == 16 && prop.Value.Data[14]== (byte)'e';
+                    //    break;
                     case MessageProperty.SenderAddress:
                         SenderAddress = Encoding.Unicode.GetString(prop.Value.Data);
                         break;
@@ -290,7 +268,7 @@ namespace PSTParse.MessageLayer
             var attachments = new List<Attachment>();
             if (!HasAttachments) return attachments;
 
-            var data = BlockBO.GetNodeData(Nid, PST);
+            var data = BlockBO.GetNodeData(_nid, _pst);
             var subNodeData = _subNodeDataDtoLazy.Value;
             var attachmentSet = new HashSet<string>();
 
@@ -317,15 +295,6 @@ namespace PSTParse.MessageLayer
             return attachments;
         }
 
-        //private bool GetIsRMSEncrypted()
-        //{
-        //    if (BodyHtml != null && BodyPlainText != null) throw new Exception("found body plaintext and body html...");
-        //    var plaintextEncrypted = BodyPlainText?.EndsWith("rms.") ?? false;
-        //    if (plaintextEncrypted && !string.IsNullOrEmpty(BodyHtml)) throw new Exception("expected body html to be null");
-        //    if (BodyHtml != null && BodyHtml.EndsWith("rms.")) throw new Exception("expected body html to be null");
-        //    return plaintextEncrypted;
-        //}
-
         private bool GetIsRMSEncrypted()
         {
             if (!HasAttachments) return false;
@@ -340,5 +309,20 @@ namespace PSTParse.MessageLayer
             }
             return false;
         }
+    }
+
+    public enum Importance
+    {
+        LOW = 0x00,
+        NORMAL = 0x01,
+        HIGH = 0x02
+    }
+
+    public enum Sensitivity
+    {
+        Normal = 0x00,
+        Personal = 0x01,
+        Private = 0x02,
+        Confidential = 0x03
     }
 }

@@ -1,11 +1,10 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Text;
 using PSTParse.ListsTablesPropertiesLayer;
 
 namespace PSTParse.MessageLayer
 {
-    public class MailFolder : IEnumerable<IPMItem>
+    public class MailFolder
     {
         private readonly PSTFile _pst;
         private readonly PropertyContext PC;
@@ -55,22 +54,26 @@ namespace PSTParse.MessageLayer
             FaiTC = new TableContext(faiNID, pst);
         }
 
-        public IEnumerator<IPMItem> GetEnumerator()
+        public IEnumerable<IPMItem> GetIpmItems()
         {
             foreach (var row in ContentsTC.ReverseRowIndex)
             {
-                var curItem = new IPMItem(_pst, row.Value);
-                //if (curItem.MessageClass.StartsWith("IPM.Note"))
-                yield return new Message(row.Value, curItem, _pst);
-                /*else
-                    yield return curItem;*/
-                //yield return new Message(row.Value);
+                var propertyContext = new PropertyContext(row.Value, _pst);
+                if (propertyContext.MessageClassProperty.StartsWith("IPM.Note"))
+                    yield return new Message(_pst, propertyContext);
+                else
+                    yield return new IPMItem(_pst, propertyContext);
             }
         }
 
-        IEnumerator IEnumerable.GetEnumerator()
+        public IEnumerable<Message> GetIpmNotes()
         {
-            return GetEnumerator();
+            foreach (var row in ContentsTC.ReverseRowIndex)
+            {
+                var propertyContext = new PropertyContext(row.Value, _pst);
+                if (propertyContext.MessageClassProperty.StartsWith("IPM.Note"))
+                    yield return new Message(_pst, propertyContext);
+            }
         }
     }
 }

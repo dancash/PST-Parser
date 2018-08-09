@@ -1,26 +1,22 @@
-﻿using System.Text;
-using PSTParse.ListsTablesPropertiesLayer;
+﻿using PSTParse.ListsTablesPropertiesLayer;
 
 namespace PSTParse.MessageLayer
 {
     public class IPMItem
     {
-        private readonly uint _nid;
+        public string MessageClass => PropertyContext.MessageClassProperty;
+        protected PropertyContext PropertyContext { get; }
 
-        public string MessageClass { get; set; }
-        public PropertyContext PC { get; set; }
+        //public IPMItem(PSTFile pst, ulong nid)
+        //{
+        //    PropertyContext = new PropertyContext(nid, pst);
+        //    MessageClass = Encoding.Unicode.GetString(PropertyContext.Properties[(MessageProperty)0x1a].Data);
+        //}
 
-        public IPMItem(PSTFile pst, uint nid)
+        public IPMItem(PSTFile pst, PropertyContext propertyContext)
         {
-            _nid = nid;
-            PC = new PropertyContext(nid, pst);
-            MessageClass = Encoding.Unicode.GetString(PC.Properties[(MessageProperty)0x1a].Data);
-
-        }
-
-        //fail
-        protected IPMItem()
-        {
+            PropertyContext = propertyContext;
+            //MessageClass = Encoding.Unicode.GetString(PropertyContext.Properties[(MessageProperty)0x1a].Data);
         }
     }
 }
