@@ -120,6 +120,7 @@
     <Compile Include="Utilities\ArrayUtilities.cs" />
     <Compile Include="Utilities\CRC32.cs" />
     <Compile Include="Utilities\RtfDecompressor.cs" />
+    <Compile Include="Utilities\Utilities.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

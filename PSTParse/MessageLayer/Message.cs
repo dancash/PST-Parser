@@ -4,22 +4,25 @@ using System.Text;
 using PSTParse.ListsTablesPropertiesLayer;
 using PSTParse.NodeDatabaseLayer;
 using PSTParse.Utilities;
+using static PSTParse.Utilities.Utilities;
 
 namespace PSTParse.MessageLayer
 {
     public class Message : IPMItem
     {
-        private readonly PSTFile _pst;
-        private readonly ulong _nid;
         //private readonly NodeDataDTO _data;
         //private readonly TableContext _attachmentTable;
         //private readonly TableContext _recipientTable;
         //private readonly PropertyContext _attachmentPC;
         //private readonly PropertyContext _messagePC;
-        private readonly Lazy<Recipients> _recipientsLazy;
-        private readonly Lazy<Dictionary<ulong, NodeDataDTO>> _subNodeDataDtoLazy;
-        private readonly Lazy<bool> _isRmsEncryptedLazy;
-        private Lazy<List<Attachment>> _attachmentsLazy;
+        private readonly PSTFile _pst;
+        private readonly ulong _nid;
+        private Dictionary<ulong, NodeDataDTO> _subNodeDataDtoLazy;
+        private readonly Lazy<bool> _isRMSEncryptedLazy;
+        private Recipients _recipientsLazy;
+        private List<Attachment> _attachmentsLazy;
+
+        private Dictionary<ulong, NodeDataDTO> SubNodeDataDto => Lazy(ref _subNodeDataDtoLazy, () => BlockBO.GetSubNodeData(_nid, _pst));
 
         public string Subject { get; set; }
         public string SubjectPrefix { get; set; }
@@ -58,9 +61,9 @@ namespace PSTParse.MessageLayer
         public String CreatorName { get; set; }
         public uint NonUnicodeCodePage { get; set; }
         public uint MessageFlags { get; set; }
-        public Recipients Recipients => _recipientsLazy.Value;
-        public List<Attachment> AttachmentsLazy => _attachmentsLazy.Value;
-        public bool IsRMSEncrypted => _isRmsEncryptedLazy.Value;
+        public Recipients Recipients => Lazy(ref _recipientsLazy, GetRecipients);
+        public List<Attachment> Attachments => Lazy(ref _attachmentsLazy, GetAttachments);
+        public bool IsRMSEncrypted => _isRMSEncryptedLazy.Value;
 
         //public Message(PSTFile pst, ulong nid) : this(pst, new PropertyContext(nid, pst)) { }
 
@@ -69,10 +72,8 @@ namespace PSTParse.MessageLayer
             _nid = propertyContext.NID;
             _pst = pst;
 
-            _attachmentsLazy = new Lazy<List<Attachment>>(GetAttachments);
-            _recipientsLazy = new Lazy<Recipients>(GetRecipients);
-            _subNodeDataDtoLazy = new Lazy<Dictionary<ulong, NodeDataDTO>>(() => BlockBO.GetSubNodeData(_nid, _pst));
-            _isRmsEncryptedLazy = new Lazy<bool>(GetIsRMSEncrypted);
+            //_subNodeDataDtoLazy = new Lazy<Dictionary<ulong, NodeDataDTO>>(() => BlockBO.GetSubNodeData(_nid, _pst));
+            _isRMSEncryptedLazy = new Lazy<bool>(GetIsRMSEncrypted);
 
             foreach (var prop in PropertyContext.Properties)
             {
@@ -237,10 +238,9 @@ namespace PSTParse.MessageLayer
         private Recipients GetRecipients()
         {
             const ulong recipientsFlag = 1682;
-            var subNodeData = _subNodeDataDtoLazy.Value;
             var recipients = new Recipients();
 
-            var exists = subNodeData.TryGetValue(recipientsFlag, out NodeDataDTO subNode);
+            var exists = SubNodeDataDto.TryGetValue(recipientsFlag, out NodeDataDTO subNode);
             if (!exists) return recipients;
 
             var recipientTable = new TableContext(subNode);
@@ -269,10 +269,9 @@ namespace PSTParse.MessageLayer
             if (!HasAttachments) return attachments;
 
             var data = BlockBO.GetNodeData(_nid, _pst);
-            var subNodeData = _subNodeDataDtoLazy.Value;
             var attachmentSet = new HashSet<string>();
 
-            foreach (var subNode in subNodeData)
+            foreach (var subNode in SubNodeDataDto)
             {
                 var nodeType = NID.GetNodeType(subNode.Key);
                 //if (nodeType == NID.NodeType.ATTACHMENT_TABLE)
@@ -299,11 +298,11 @@ namespace PSTParse.MessageLayer
         {
             if (!HasAttachments) return false;
 
-            foreach (var attachment in AttachmentsLazy)
+            foreach (var attachment in Attachments)
             {
                 if (attachment.AttachmentLongFileName.ToLowerInvariant().EndsWith(".rpmsg"))
                 {
-                    if (AttachmentsLazy.Count > 1) throw new NotSupportedException("too many attachments for rms");
+                    if (Attachments.Count > 1) throw new NotSupportedException("too many attachments for rms");
                     return true;
                 }
             }

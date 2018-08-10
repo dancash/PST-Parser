@@ -59,7 +59,7 @@ namespace PSTParse.MessageLayer
             foreach (var row in ContentsTC.ReverseRowIndex)
             {
                 var propertyContext = new PropertyContext(row.Value, _pst);
-                if (propertyContext.MessageClassProperty.StartsWith("IPM.Note"))
+                if (propertyContext.MessageClassProperty == "IPM.Note")
                     yield return new Message(_pst, propertyContext);
                 else
                     yield return new IPMItem(_pst, propertyContext);
@@ -71,7 +71,7 @@ namespace PSTParse.MessageLayer
             foreach (var row in ContentsTC.ReverseRowIndex)
             {
                 var propertyContext = new PropertyContext(row.Value, _pst);
-                if (propertyContext.MessageClassProperty.StartsWith("IPM.Note"))
+                if (propertyContext.MessageClassProperty == "IPM.Note")
                     yield return new Message(_pst, propertyContext);
             }
         }

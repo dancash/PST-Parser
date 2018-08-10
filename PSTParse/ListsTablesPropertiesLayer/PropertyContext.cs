@@ -1,35 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 using PSTParse.MessageLayer;
 using PSTParse.NodeDatabaseLayer;
+using static PSTParse.Utilities.Utilities;
+using static System.Text.Encoding;
 
 namespace PSTParse.ListsTablesPropertiesLayer
 {
     public class PropertyContext
     {
-        private Lazy<string> _messageClassProperty;
+        private string _messageClassProperty;
+
         public BTH BTH { get; }
-        public Dictionary<MessageProperty, ExchangeProperty> Properties { get; } = new Dictionary<MessageProperty, ExchangeProperty>();
+        public Dictionary<MessageProperty, ExchangeProperty> Properties { get; }
         public ulong NID { get; }
-        public string MessageClassProperty => _messageClassProperty.Value;
+        public string MessageClassProperty =>
+            Lazy(ref _messageClassProperty, () => Unicode.GetString(Properties[MessageProperty.MessageClass].Data));
 
-        public PropertyContext(ulong nid, PSTFile pst) : this(BlockBO.GetNodeData(nid, pst))
-        {
-            NID = nid;
-        }
-
+        public PropertyContext(ulong nid, PSTFile pst) : this(BlockBO.GetNodeData(nid, pst)) => NID = nid;
         public PropertyContext(NodeDataDTO nodeData)
         {
             var HN = new HN(nodeData);
             BTH = new BTH(HN);
             Properties = BTH.GetExchangeProperties();
-            _messageClassProperty = new Lazy<string>(GetMessageClass);
-        }
-
-        private string GetMessageClass()
-        {
-            return Encoding.Unicode.GetString(Properties[(MessageProperty)0x1a].Data);
         }
     }
 }

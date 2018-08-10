@@ -19,7 +19,6 @@ namespace PSTParseApp
             //var pstPath = @"C:\temp\testPsts\trg.pst";
             var fileInfo = new FileInfo(pstPath);
             var pstSizeGigabytes = ((double)fileInfo.Length / 1000 / 1000 / 1000).ToString("0.000");
-            var folderBlacklist = new HashSet<string>();
 
             sw.Start();
             using (var file = new PSTFile(pstPath))
@@ -30,18 +29,16 @@ namespace PSTParseApp
                 var stack = new Stack<MailFolder>();
                 stack.Push(file.TopOfPST);
                 var totalCount = 0;
+                var maxSearchSize = 1500;
                 var totalEncryptedCount = 0;
                 var totalUnsentCount = 0;
-                //var nonMessageTypes = 0;
                 var skippedFolders = new List<string>();
-
                 while (stack.Count > 0)
                 {
                     var curFolder = stack.Pop();
 
                     foreach (var child in curFolder.SubFolders)
                     {
-                        if (folderBlacklist.Contains(child.Path[1])) continue;
                         stack.Push(child);
                     }
                     var count = curFolder.Count;
@@ -76,6 +73,11 @@ namespace PSTParseApp
                             //stack.Clear();
                             //break;
                         }
+                        if (totalCount == maxSearchSize)
+                        {
+                            stack.Clear();
+                            break;
+                        }
 
                         //var recipients = message.Recipients;
                         //if (!message.HasAttachments) continue;
@@ -88,12 +90,11 @@ namespace PSTParseApp
                     }
                 }
                 sw.Stop();
-                var elapsedSeconds = sw.ElapsedMilliseconds / 1000;
+                var elapsedSeconds = (double)sw.ElapsedMilliseconds / 1000;
                 WriteLine("{0} messages total", totalCount);
                 WriteLine("{0} encrypted messages total", totalEncryptedCount);
-                //WriteLine("{0} nonMessageTypes total", nonMessageTypes);
                 WriteLine("{0} totalUnsentCount", totalUnsentCount);
-                WriteLine("Parsed {0} ({1} GB) in {2} seconds", Path.GetFileName(pstPath), pstSizeGigabytes, elapsedSeconds);
+                WriteLine("Parsed {0} ({1} GB) in {2:0.00} seconds", Path.GetFileName(pstPath), pstSizeGigabytes, elapsedSeconds);
 
                 WriteLine("\r\nSkipped Folders:\r\n");
                 foreach (var line in skippedFolders)
