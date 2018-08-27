@@ -14,9 +14,9 @@ namespace PSTParseApp
         static void Main(string[] args)
         {
             var sw = new Stopwatch();
-            var pstPath = @"C:\temp\testPsts\Leann.pst";
+            //var pstPath = @"C:\temp\testPsts\Leann.pst";
             //var pstPath = @"C:\temp\testPsts\sharp_2_attachments_test.pst";
-            //var pstPath = @"C:\temp\testPsts\trg.pst";
+            var pstPath = @"C:\temp\testPsts\trg.pst";
             var fileInfo = new FileInfo(pstPath);
             var pstSizeGigabytes = ((double)fileInfo.Length / 1000 / 1000 / 1000).ToString("0.000");
 
@@ -29,7 +29,8 @@ namespace PSTParseApp
                 var stack = new Stack<MailFolder>();
                 stack.Push(file.TopOfPST);
                 var totalCount = 0;
-                var maxSearchSize = 1500;
+                //var maxSearchSize = 1500;
+                var maxSearchSize = int.MaxValue;
                 var totalEncryptedCount = 0;
                 var totalUnsentCount = 0;
                 var skippedFolders = new List<string>();
@@ -67,7 +68,14 @@ namespace PSTParseApp
                             totalUnsentCount++;
                             continue;
                         }
-                        if (message.IsRMSEncrypted)
+
+                        //if (message.IsRMSEncrypted)
+                        //{
+                        //    totalEncryptedCount++;
+                        //    //stack.Clear();
+                        //    //break;
+                        //}
+                        if (message.IsRMSEncryptedHeaders)
                         {
                             totalEncryptedCount++;
                             //stack.Clear();
@@ -81,12 +89,10 @@ namespace PSTParseApp
 
                         //var recipients = message.Recipients;
                         //if (!message.HasAttachments) continue;
-
-                        //foreach (var attachment in message.AttachmentsLazy)
+                        //foreach (var attachment in message.AttachmentHeaders)
                         //{
 
                         //}
-                        //if (message.AttachmentsLazy.Count > 1)
                     }
                 }
                 sw.Stop();
