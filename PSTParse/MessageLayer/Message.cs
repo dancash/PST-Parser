@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 using PSTParse.ListsTablesPropertiesLayer;
 using PSTParse.NodeDatabaseLayer;
@@ -348,21 +349,15 @@ namespace PSTParse.MessageLayer
 
             foreach (var attachment in AttachmentHeaders)
             {
-                //if (attachment.AttachmentLongFileName?.ToLowerInvariant().EndsWith(".rpm") ?? false)
-                //{
-                //    if (Attachments.Count > 1) throw new NotSupportedException("too many attachments for rms");
-                //    return true;
-                //}
+                Debug.Assert(!(attachment.AttachmentLongFileName?.ToLowerInvariant().EndsWith(".rpm") ?? false));
+                Debug.Assert(!(attachment.DisplayName?.ToLowerInvariant().EndsWith(".rpm") ?? false));
+              
                 if (attachment.Filename?.ToLowerInvariant().EndsWith(".rpm") ?? false)
                 {
                     //if (Attachments.Count > 1) throw new NotSupportedException("too many attachments for rms");
                     return true;
                 }
-                //if (attachment.DisplayName?.ToLowerInvariant().EndsWith(".rpm") ?? false)
-                //{
-                //    if (Attachments.Count > 1) throw new NotSupportedException("too many attachments for rms");
-                //    return true;
-                //}
+             
                 return false;
             }
             return false;

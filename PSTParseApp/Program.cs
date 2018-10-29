@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Text;
 using PSTParse;
 using PSTParse.MessageLayer;
 using static System.Console;
@@ -14,15 +13,15 @@ namespace PSTParseApp
         static void Main(string[] args)
         {
             var sw = new Stopwatch();
-            //var pstPath = @"C:\temp\testPsts\Leann.pst";
-            //var pstPath = @"C:\temp\testPsts\sharp_2_attachments_test.pst";
-            var pstPath = @"C:\temp\testPsts\trg.pst";
+            //var pstPath = @"C:\localdocs\testPsts\Leann.pst";
+            //var pstPath = @"C:\localdocs\testPsts\sharp_2_attachments_test.pst";
+            var pstPath = @"C:\localdocs\testPsts\trg.pst";
             var fileInfo = new FileInfo(pstPath);
             var pstSizeGigabytes = ((double)fileInfo.Length / 1000 / 1000 / 1000).ToString("0.000");
-
             sw.Start();
             using (var file = new PSTFile(pstPath))
             {
+                Debug.Assert((double)fileInfo.Length / 1000 / 1000 / 1000 == file.SizeMB / 1000);
                 //Console.WriteLine("Magic value: " + file.Header.DWMagic);
                 //Console.WriteLine("Is Ansi? " + file.Header.IsANSI);
 
@@ -109,14 +108,6 @@ namespace PSTParseApp
                 }
                 Read();
             }
-        }
-
-        public static string ByteArrayToString(byte[] ba)
-        {
-            StringBuilder hex = new StringBuilder(ba.Length * 2);
-            foreach (byte b in ba)
-                hex.AppendFormat("{0:x2}", b);
-            return hex.ToString();
         }
     }
 }

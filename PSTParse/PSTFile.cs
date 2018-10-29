@@ -9,30 +9,31 @@ namespace PSTParse
 {
     public class PSTFile : IDisposable
     {
-        //public static PSTFile CurPST { get; set; }
         public string Path { get; set; }
         public MemoryMappedFile PSTMMF { get; set; }
         public PSTHeader Header { get; set; }
         public MailStore MailStore { get; set; }
         public MailFolder TopOfPST { get; set; }
         public NamedToPropertyLookup NamedPropertyLookup { get; set; }
+        public double SizeMB => (double)Header.Root.FileSizeBytes / 1000 / 1000;
 
         public PSTFile(string path)
         {
-            this.Path = path;
-            this.PSTMMF = MemoryMappedFile.CreateFromFile(path, FileMode.Open);
+            Path = path ?? throw new ArgumentNullException(nameof(path));
+            PSTMMF = MemoryMappedFile.CreateFromFile(path, FileMode.Open);
 
-            this.Header = new PSTHeader(this);
+            Header = new PSTHeader(this);
+            if (Header.IsANSI ?? false || !(Header.IsUNICODE ?? false)) throw new InvalidDataException("PST is ANSI format, currently only support UNICODE");
 
             /*var messageStoreData = BlockBO.GetNodeData(SpecialNIDs.NID_MESSAGE_STORE);
             var temp = BlockBO.GetNodeData(SpecialNIDs.NID_ROOT_FOLDER);*/
-            this.MailStore = new MailStore(this);
+            MailStore = new MailStore(this);
 
-            this.TopOfPST = new MailFolder(this.MailStore.RootFolder.NID, new List<string>(), this);
-            this.NamedPropertyLookup = new NamedToPropertyLookup(this);
+            TopOfPST = new MailFolder(MailStore.RootFolder.NID, new List<string>(), this);
+            NamedPropertyLookup = new NamedToPropertyLookup(this);
+
             //var temp = new TableContext(rootEntryID.NID);
             //PasswordReset.ResetPassword();
-
         }
 
         public void CloseMMF()
@@ -42,22 +43,22 @@ namespace PSTParse
 
         public void OpenMMF()
         {
-            PSTMMF = MemoryMappedFile.CreateFromFile(this.Path, FileMode.Open);
+            PSTMMF = MemoryMappedFile.CreateFromFile(Path, FileMode.Open);
         }
 
-        public Tuple<ulong,ulong> GetNodeBIDs(ulong NID)
+        public Tuple<ulong, ulong> GetNodeBIDs(ulong NID)
         {
-            return this.Header.NodeBT.Root.GetNIDBID(NID);
+            return Header.NodeBT.Root.GetNIDBID(NID);
         }
 
         public void Dispose()
         {
-            this.CloseMMF();
+            CloseMMF();
         }
 
         public BBTENTRY GetBlockBBTEntry(ulong item1)
         {
-            return this.Header.BlockBT.Root.GetBIDBBTEntry(item1);
+            return Header.BlockBT.Root.GetBIDBBTEntry(item1);
         }
     }
 }

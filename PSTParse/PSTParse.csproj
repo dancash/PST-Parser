@@ -118,6 +118,7 @@
     <Compile Include="PSTHeader.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PSTParser.cs" />
+    <Compile Include="PSTRoot.cs" />
     <Compile Include="Utilities\ArrayUtilities.cs" />
     <Compile Include="Utilities\CRC32.cs" />
     <Compile Include="Utilities\RtfDecompressor.cs" />
