@@ -9,12 +9,12 @@ namespace PSTParse
 {
     public class PSTFile : IDisposable
     {
-        public string Path { get; set; }
-        public MemoryMappedFile PSTMMF { get; set; }
-        public PSTHeader Header { get; set; }
-        public MailStore MailStore { get; set; }
-        public MailFolder TopOfPST { get; set; }
-        public NamedToPropertyLookup NamedPropertyLookup { get; set; }
+        public string Path { get; }
+        public MemoryMappedFile PSTMMF { get; private set; }
+        public PSTHeader Header { get; }
+        public MailStore MailStore { get; }
+        public MailFolder TopOfPST { get; }
+        public NamedToPropertyLookup NamedPropertyLookup { get; }
         public double SizeMB => (double)Header.Root.FileSizeBytes / 1000 / 1000;
 
         public PSTFile(string path)
@@ -23,7 +23,7 @@ namespace PSTParse
             PSTMMF = MemoryMappedFile.CreateFromFile(path, FileMode.Open);
 
             Header = new PSTHeader(this);
-            if (Header.IsANSI ?? false || !(Header.IsUNICODE ?? false)) throw new InvalidDataException("PST is ANSI format, currently only support UNICODE");
+            if (!Header.IsUNICODE) throw new InvalidDataException("PST Parser currently only supports UNICODE");
 
             /*var messageStoreData = BlockBO.GetNodeData(SpecialNIDs.NID_MESSAGE_STORE);
             var temp = BlockBO.GetNodeData(SpecialNIDs.NID_ROOT_FOLDER);*/

@@ -7,8 +7,8 @@ namespace PSTParse
     public class PSTHeader
     {
         public string DWMagic { get; private set; }
-        public bool? IsANSI { get; private set; }
-        public bool? IsUNICODE { get { return IsANSI == null ? null : !IsANSI; } }
+        public bool IsANSI { get; }
+        public bool IsUNICODE { get; }
         public NodeDatabaseLayer.PSTBTree NodeBT { get; private set; }
         public NodeDatabaseLayer.PSTBTree BlockBT { get; private set; }
         public BlockEncoding EncodingAlgotihm { get; private set; }
@@ -25,13 +25,10 @@ namespace PSTParse
                 var ver = mmfView.ReadInt16(10);
 
 
-                IsANSI = ver == 14 || ver == 15 ? true : (ver == 23 ? (bool?)false : null);
+                IsANSI = ver == 14 || ver == 15;
+                IsUNICODE = ver == 23;
 
-                if (IsANSI != null && IsANSI.Value)
-                {
-                    // ansi not supported
-                }
-                else if (IsUNICODE != null && IsUNICODE.Value)
+                if (IsUNICODE)
                 {
                     var fileSizeBuffer = new byte[8];
                     mmfView.ReadArray(184, fileSizeBuffer, 0, 8);

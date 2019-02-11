@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using PSTParse;
@@ -13,12 +12,10 @@ namespace PSTParseApp
         static void Main(string[] args)
         {
             var sw = new Stopwatch();
-            //var pstPath = @"C:\localdocs\testPsts\Leann.pst";
-            //var pstPath = @"C:\localdocs\testPsts\sharp_2_attachments_test.pst";
+            sw.Start();
             var pstPath = @"C:\localdocs\testPsts\trg.pst";
             var fileInfo = new FileInfo(pstPath);
             var pstSizeGigabytes = ((double)fileInfo.Length / 1000 / 1000 / 1000).ToString("0.000");
-            sw.Start();
             using (var file = new PSTFile(pstPath))
             {
                 Debug.Assert((double)fileInfo.Length / 1000 / 1000 / 1000 == file.SizeMB / 1000);
@@ -42,7 +39,7 @@ namespace PSTParseApp
                         stack.Push(child);
                     }
                     var count = curFolder.Count;
-                    var line = $"{String.Join(" -> ", curFolder.Path)}({curFolder.ContainerClass}) ({count} messages)";
+                    var line = $"{string.Join(" -> ", curFolder.Path)}({curFolder.ContainerClass}) ({count} messages)";
                     if (curFolder.Path.Count > 1 && curFolder.ContainerClass != "" && curFolder.ContainerClass != "IPF.Note")
                     {
                         skippedFolders.Add(line);
@@ -74,6 +71,7 @@ namespace PSTParseApp
                         //    //stack.Clear();
                         //    //break;
                         //}
+                        Debug.Assert(message.IsRMSEncryptedHeaders == message.IsRMSEncrypted, "encryption mismatch, big problems");
                         if (message.IsRMSEncryptedHeaders)
                         {
                             totalEncryptedCount++;

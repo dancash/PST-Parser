@@ -351,13 +351,13 @@ namespace PSTParse.MessageLayer
             {
                 Debug.Assert(!(attachment.AttachmentLongFileName?.ToLowerInvariant().EndsWith(".rpm") ?? false));
                 Debug.Assert(!(attachment.DisplayName?.ToLowerInvariant().EndsWith(".rpm") ?? false));
-              
+
                 if (attachment.Filename?.ToLowerInvariant().EndsWith(".rpm") ?? false)
                 {
-                    //if (Attachments.Count > 1) throw new NotSupportedException("too many attachments for rms");
+                    Debug.Assert(Attachments.Count == 1, "too many attachments for rms");
                     return true;
                 }
-             
+
                 return false;
             }
             return false;
