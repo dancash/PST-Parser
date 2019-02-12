@@ -9,6 +9,8 @@ namespace PSTParse
 {
     public class PSTFile : IDisposable
     {
+        public const int MinFileSizeBytes = 1_000;
+
         public string Path { get; }
         public MemoryMappedFile PSTMMF { get; private set; }
         public PSTHeader Header { get; }
@@ -19,10 +21,15 @@ namespace PSTParse
 
         public PSTFile(string path)
         {
+            if (new FileInfo(path).Length < MinFileSizeBytes)
+            {
+                throw new Exception($"Failed opening PST, file size must be greater than {MinFileSizeBytes} bytes");
+            }
             Path = path ?? throw new ArgumentNullException(nameof(path));
             PSTMMF = MemoryMappedFile.CreateFromFile(path, FileMode.Open);
 
             Header = new PSTHeader(this);
+            if (!Header.IsUNICODE && !Header.IsANSI) throw new InvalidDataException("PST is not a valid data file");
             if (!Header.IsUNICODE) throw new InvalidDataException("PST Parser currently only supports UNICODE");
 
             /*var messageStoreData = BlockBO.GetNodeData(SpecialNIDs.NID_MESSAGE_STORE);
