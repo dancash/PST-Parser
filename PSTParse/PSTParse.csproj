@@ -71,6 +71,7 @@
     <Compile Include="ListsTablesPropertiesLayer\TCRowMatrix.cs" />
     <Compile Include="ListsTablesPropertiesLayer\TCRowMatrixData.cs" />
     <Compile Include="MessageLayer\Attachment.cs" />
+    <Compile Include="MessageLayer\AttachmentEnums.cs" />
     <Compile Include="MessageLayer\IPMItem.cs" />
     <Compile Include="MessageLayer\MailFolder.cs" />
     <Compile Include="MessageLayer\MailStore.cs" />
@@ -117,6 +118,7 @@
     <Compile Include="PSTHeader.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PSTParser.cs" />
+    <Compile Include="PSTRoot.cs" />
     <Compile Include="Utilities\ArrayUtilities.cs" />
     <Compile Include="Utilities\CRC32.cs" />
     <Compile Include="Utilities\RtfDecompressor.cs" />

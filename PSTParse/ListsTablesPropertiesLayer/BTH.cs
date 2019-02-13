@@ -7,32 +7,39 @@ namespace PSTParse.ListsTablesPropertiesLayer
 {
     public class BTH
     {
-        public HN HeapNode;
-        public BTHHEADER Header;
-        public BTHIndexNode Root;
-        public int CurrentLevel;
-
-        public Dictionary<byte[], BTHDataEntry> Properties;
+        public HN HeapNode { get; set; }
+        public BTHHEADER Header { get; set; }
+        public BTHIndexNode Root { get; set; }
+        public int CurrentLevel { get; set; }
+        public Dictionary<byte[], BTHDataEntry> Properties { get; set; }
 
         public BTH(HN heapNode, HID userRoot = null)
         {
-            this.HeapNode = heapNode;
+            HeapNode = heapNode;
 
             var bthHeaderHID = userRoot ?? heapNode.HeapNodes[0].Header.UserRoot;
-            this.Header = new BTHHEADER(HeapNodeBO.GetHNHIDBytes(heapNode, bthHeaderHID));
-            this.Root = new BTHIndexNode(this.Header.BTreeRoot, this, (int)this.Header.NumLevels);
+            Header = new BTHHEADER(HeapNodeBO.GetHNHIDBytes(heapNode, bthHeaderHID));
+            Root = new BTHIndexNode(Header.BTreeRoot, this, (int)Header.NumLevels);
 
-            this.Properties = new Dictionary<byte[], BTHDataEntry>(new ArrayUtilities.ByteArrayComparer());
+            Properties = new Dictionary<byte[], BTHDataEntry>(new ArrayUtilities.ByteArrayComparer());
 
             var stack = new Stack<BTHIndexNode>();
-            stack.Push(this.Root);
+            stack.Push(Root);
             while (stack.Count > 0)
             {
                 var cur = stack.Pop();
 
-                if (cur.Data != null)
-                    foreach (var entry in cur.Data.DataEntries)
-                        this.Properties.Add(entry.Key, entry);
+                try
+                {
+                    if (cur.Data != null)
+                        foreach (var entry in cur.Data.DataEntries)
+                            Properties.Add(entry.Key, entry);
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("Cannot display this view.  Failed to create all properties in this location", ex);
+                }
+
 
                 if (cur.Children != null)
                     foreach (var child in cur.Children)
@@ -43,7 +50,7 @@ namespace PSTParse.ListsTablesPropertiesLayer
 
         public HNDataDTO GetHIDBytes(HID hid)
         {
-            return this.HeapNode.GetHIDBytes(hid);
+            return HeapNode.GetHIDBytes(hid);
         }
 
         public Dictionary<MessageProperty, ExchangeProperty> GetExchangeProperties()
@@ -51,7 +58,7 @@ namespace PSTParse.ListsTablesPropertiesLayer
             var ret = new Dictionary<MessageProperty, ExchangeProperty>();
 
             var stack = new Stack<BTHIndexNode>();
-            stack.Push(this.Root);
+            stack.Push(Root);
             while (stack.Count > 0)
             {
                 var cur = stack.Pop();

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace PSTParse.NodeDatabaseLayer
 {
@@ -18,7 +19,7 @@ namespace PSTParse.NodeDatabaseLayer
             return new NodeDataDTO { NodeData = mainData, SubNodeData = subNodeData };
         }
 
-        public static Dictionary<ulong, NodeDataDTO> GetSubNodeData(ulong nid, PSTFile pst)
+        public static Dictionary<ulong, NodeDataDTO> GetSubNodeData(ulong nid, PSTFile pst, int take = int.MaxValue)
         {
             var nodeBIDs = pst.GetNodeBIDs(nid);
 
@@ -26,12 +27,12 @@ namespace PSTParse.NodeDatabaseLayer
             if (nodeBIDs.Item2 == 0)
                 subNodeData = new Dictionary<ulong, NodeDataDTO>();
             else
-                subNodeData = GetSubNodeData(pst.GetBlockBBTEntry(nodeBIDs.Item2), pst);
+                subNodeData = GetSubNodeData(pst.GetBlockBBTEntry(nodeBIDs.Item2), pst, take);
 
             return subNodeData;
         }
 
-        private static Dictionary<ulong, NodeDataDTO> GetSubNodeData(BBTENTRY entry, PSTFile pst)
+        private static Dictionary<ulong, NodeDataDTO> GetSubNodeData(BBTENTRY entry, PSTFile pst, int take = int.MaxValue)
         {
             var allData = GetBBTEntryData(entry, pst);
             var dataBlock = allData[0];
@@ -41,7 +42,7 @@ namespace PSTParse.NodeDatabaseLayer
                 var cLevel = dataBlock.Data[1];
                 if (cLevel == 0) //SLBlock, no intermediate
                 {
-                    return GetSLBlockData(new SLBLOCK(dataBlock), pst);
+                    return GetSLBlockData(new SLBLOCK(dataBlock), pst, take);
                 }
                 else //SIBlock
                 {
@@ -61,22 +62,23 @@ namespace PSTParse.NodeDatabaseLayer
             foreach (var entry in siblock.Entries)
             {
                 var curSLBlockBBT = pst.GetBlockBBTEntry(entry.SLBlockBID);
-                var slblock = new SLBLOCK(BlockBO.GetBBTEntryData(curSLBlockBBT, pst)[0]);
-                var data = BlockBO.GetSLBlockData(slblock, pst);
+                var slblock = new SLBLOCK(GetBBTEntryData(curSLBlockBBT, pst)[0]);
+                var data = GetSLBlockData(slblock, pst);
                 foreach (var item in data)
                     ret.Add(item.Key, item.Value);
             }
 
             return ret;
         }
+
         //gets all the data for an SL block.  an SL block points directly to all the immediate subnodes
-        private static Dictionary<ulong, NodeDataDTO> GetSLBlockData(SLBLOCK slblock, PSTFile pst)
+        private static Dictionary<ulong, NodeDataDTO> GetSLBlockData(SLBLOCK slblock, PSTFile pst, int take = int.MaxValue)
         {
             var ret = new Dictionary<ulong, NodeDataDTO>();
-            foreach (var entry in slblock.Entries)
+            foreach (var entry in slblock.Entries.Take(take))
             {
                 //this data should represent the main data part of the subnode
-                var data = BlockBO.GetBBTEntryData(pst.GetBlockBBTEntry(entry.SubNodeBID), pst);
+                var data = GetBBTEntryData(pst.GetBlockBBTEntry(entry.SubNodeBID), pst);
                 var cur = new NodeDataDTO { NodeData = data };
                 ret.Add(entry.SubNodeNID, cur);
 
@@ -84,11 +86,10 @@ namespace PSTParse.NodeDatabaseLayer
                 if (entry.SubSubNodeBID != 0)
                     //if there are subnodes, treat them like any other subnode
                     cur.SubNodeData = GetSubNodeData(pst.GetBlockBBTEntry(entry.SubSubNodeBID), pst);
-
-
             }
             return ret;
         }
+
         public static NodeDataDTO GetNodeData(NBTENTRY entry, PSTFile pst)
         {
             var mainData = BlockBO.GetBBTEntryData(pst.GetBlockBBTEntry(entry.BID_Data), pst);

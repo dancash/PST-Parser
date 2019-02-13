@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text;
 using PSTParse.ListsTablesPropertiesLayer;
 
@@ -43,8 +44,6 @@ namespace PSTParse.MessageLayer
             foreach (var row in HeirachyTC.ReverseRowIndex)
             {
                 SubFolders.Add(new MailFolder(row.Value, Path, pst));
-                //var temp = row.Key;
-                //var temp2 = row.Value;
                 //SubFolderEntryIDs.Add(row.);
             }
 
@@ -58,11 +57,15 @@ namespace PSTParse.MessageLayer
         {
             foreach (var row in ContentsTC.ReverseRowIndex)
             {
-                var propertyContext = new PropertyContext(row.Value, _pst);
+                var propertyContext = GetPropertyContext(row.Value);
                 if (propertyContext.MessageClassProperty == "IPM.Note")
+                {
                     yield return new Message(_pst, propertyContext);
+                }
                 else
+                {
                     yield return new IPMItem(_pst, propertyContext);
+                }
             }
         }
 
@@ -70,9 +73,23 @@ namespace PSTParse.MessageLayer
         {
             foreach (var row in ContentsTC.ReverseRowIndex)
             {
-                var propertyContext = new PropertyContext(row.Value, _pst);
+                var propertyContext = GetPropertyContext(row.Value);
                 if (propertyContext.MessageClassProperty == "IPM.Note")
+                {
                     yield return new Message(_pst, propertyContext);
+                }
+            }
+        }
+
+        private PropertyContext GetPropertyContext(uint rowValue)
+        {
+            try
+            {
+                return new PropertyContext(rowValue, _pst);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error: PST corruption detected while parsing {string.Join("/", Path)}", ex);
             }
         }
     }

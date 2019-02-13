@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 using PSTParse.ListsTablesPropertiesLayer;
 using PSTParse.NodeDatabaseLayer;
@@ -18,11 +19,15 @@ namespace PSTParse.MessageLayer
         private readonly PSTFile _pst;
         private readonly ulong _nid;
         private Dictionary<ulong, NodeDataDTO> _subNodeDataDtoLazy;
+        private Dictionary<ulong, NodeDataDTO> _subNodeHeaderDataDtoLazy;
         private readonly Lazy<bool> _isRMSEncryptedLazy;
+        private readonly Lazy<bool> _isRMSEncryptedHeadersLazy;
         private Recipients _recipientsLazy;
         private List<Attachment> _attachmentsLazy;
+        private IEnumerable<Attachment> _attachmentHeadersLazy;
 
         private Dictionary<ulong, NodeDataDTO> SubNodeDataDto => Lazy(ref _subNodeDataDtoLazy, () => BlockBO.GetSubNodeData(_nid, _pst));
+        private Dictionary<ulong, NodeDataDTO> SubNodeHeaderDataDto => Lazy(ref _subNodeHeaderDataDtoLazy, () => BlockBO.GetSubNodeData(_nid, _pst, take: 1));
 
         public string Subject { get; set; }
         public string SubjectPrefix { get; set; }
@@ -63,7 +68,9 @@ namespace PSTParse.MessageLayer
         public uint MessageFlags { get; set; }
         public Recipients Recipients => Lazy(ref _recipientsLazy, GetRecipients);
         public List<Attachment> Attachments => Lazy(ref _attachmentsLazy, GetAttachments);
+        public IEnumerable<Attachment> AttachmentHeaders => Lazy(ref _attachmentHeadersLazy, GetAttachmentHeaders);
         public bool IsRMSEncrypted => _isRMSEncryptedLazy.Value;
+        public bool IsRMSEncryptedHeaders => _isRMSEncryptedHeadersLazy.Value;
 
         //public Message(PSTFile pst, ulong nid) : this(pst, new PropertyContext(nid, pst)) { }
 
@@ -74,6 +81,7 @@ namespace PSTParse.MessageLayer
 
             //_subNodeDataDtoLazy = new Lazy<Dictionary<ulong, NodeDataDTO>>(() => BlockBO.GetSubNodeData(_nid, _pst));
             _isRMSEncryptedLazy = new Lazy<bool>(GetIsRMSEncrypted);
+            _isRMSEncryptedHeadersLazy = new Lazy<bool>(GetIsRMSEncryptedHeaders);
 
             foreach (var prop in PropertyContext.Properties)
             {
@@ -263,22 +271,38 @@ namespace PSTParse.MessageLayer
             return recipients;
         }
 
+        private IEnumerable<Attachment> GetAttachmentHeaders()
+        {
+            if (!HasAttachments) yield break;
+
+            var attachmentSet = new HashSet<string>();
+            foreach (var subNode in SubNodeHeaderDataDto)
+            {
+                if ((NodeValue)subNode.Key != NodeValue.AttachmentTable)
+                {
+                    throw new Exception("expected node to be an attachment table");
+                }
+
+                var attachmentTable = new TableContext(subNode.Value);
+                var attachmentRows = attachmentTable.RowMatrix.Rows;
+
+                foreach (var attachmentRow in attachmentRows)
+                {
+                    var attachment = new Attachment(attachmentRow);
+                    yield return attachment;
+                }
+            }
+        }
+
         private List<Attachment> GetAttachments()
         {
             var attachments = new List<Attachment>();
             if (!HasAttachments) return attachments;
 
-            var data = BlockBO.GetNodeData(_nid, _pst);
             var attachmentSet = new HashSet<string>();
-
             foreach (var subNode in SubNodeDataDto)
             {
                 var nodeType = NID.GetNodeType(subNode.Key);
-                //if (nodeType == NID.NodeType.ATTACHMENT_TABLE)
-                //{
-                //        var attachmentTable = new TableContext(subNode.Value);
-                //        break;
-                //}
                 if (nodeType != NID.NodeType.ATTACHMENT_PC) continue;
 
                 var attachmentPC = new PropertyContext(subNode.Value);
@@ -300,11 +324,41 @@ namespace PSTParse.MessageLayer
 
             foreach (var attachment in Attachments)
             {
-                if (attachment.AttachmentLongFileName.ToLowerInvariant().EndsWith(".rpmsg"))
+                if (attachment.AttachmentLongFileName?.ToLowerInvariant().EndsWith(".rpmsg") ?? false)
                 {
                     if (Attachments.Count > 1) throw new NotSupportedException("too many attachments for rms");
                     return true;
                 }
+                if (attachment.Filename?.ToLowerInvariant().EndsWith(".rpmsg") ?? false)
+                {
+                    if (Attachments.Count > 1) throw new NotSupportedException("too many attachments for rms");
+                    return true;
+                }
+                if (attachment.DisplayName?.ToLowerInvariant().EndsWith(".rpmsg") ?? false)
+                {
+                    if (Attachments.Count > 1) throw new NotSupportedException("too many attachments for rms");
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private bool GetIsRMSEncryptedHeaders()
+        {
+            if (!HasAttachments) return false;
+
+            foreach (var attachment in AttachmentHeaders)
+            {
+                Debug.Assert(!(attachment.AttachmentLongFileName?.ToLowerInvariant().EndsWith(".rpm") ?? false));
+                Debug.Assert(!(attachment.DisplayName?.ToLowerInvariant().EndsWith(".rpm") ?? false));
+
+                if (attachment.Filename?.ToLowerInvariant().EndsWith(".rpm") ?? false)
+                {
+                    Debug.Assert(Attachments.Count == 1, "too many attachments for rms");
+                    return true;
+                }
+
+                return false;
             }
             return false;
         }
