@@ -4,6 +4,7 @@ storage.ide
 storage.ide-shm
 storage.ide-wal
 .dtbcache
+*.nupkg
 
 #OS junk files
 [Tt]humbs.db

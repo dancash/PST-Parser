@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <title>$title$</title>
+    <authors>$author$</authors>
+    <owners>$author$</owners>
+    <license type="file">LICENSE.txt</license>
+    <projectUrl>https://github.com/Sharpiro/PST-Parser</projectUrl>
+    <!-- <iconUrl>http://ICON_URL_HERE_OR_DELETE_THIS_LINE</iconUrl> -->
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>$description$</description>
+    <!-- <releaseNotes>Summary of changes made in this release of the package.</releaseNotes> -->
+    <copyright>Copyright 2019</copyright>
+    <tags>pst pstparse, pst-parse, pst-parser</tags>
+  </metadata>
+  <files>
+    <file src="..\LICENSE.txt" target="" />
+  </files>
+</package>

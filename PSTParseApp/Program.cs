@@ -2,7 +2,6 @@
 using System.Diagnostics;
 using System.IO;
 using PSTParse;
-using PSTParse.MessageLayer;
 using static System.Console;
 
 namespace PSTParseApp

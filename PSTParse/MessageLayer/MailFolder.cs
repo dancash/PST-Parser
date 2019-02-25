@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 using PSTParse.ListsTablesPropertiesLayer;
+using PSTParse.MessageLayer;
 
-namespace PSTParse.MessageLayer
+namespace PSTParse
 {
     public class MailFolder
     {
